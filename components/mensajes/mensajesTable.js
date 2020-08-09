@@ -66,7 +66,7 @@ const MensajesTable = () => {
             body={(rowData) => {
               return (
                 <button className="btn btn-block btn-info btn-sm">
-                  Ver tarea
+                  Ver Mensaje
                 </button>
               );
             }}
