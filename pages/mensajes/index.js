@@ -1,15 +1,15 @@
 import React from "react";
+import MensajesTable from "@components/mensajes/mensajesTable";
 import PrivateLayout from "@layouts/privateLayout";
-import TareasTable from "@components/tareas/tareasTable";
 
-const TareasContainer = () => {
+const MensajesContainer = () => {
   return (
     <PrivateLayout>
       <main className="container-fluid">
         <h1 className="text-center display-4">Tareas</h1>
         <div className="row justify-content-center">
           <div className="col-lg-8 align-self-center ">
-            <TareasTable />
+            <MensajesTable />
           </div>
         </div>
       </main>
@@ -17,4 +17,4 @@ const TareasContainer = () => {
   );
 };
 
-export default TareasContainer;
+export default MensajesContainer;
