@@ -8,6 +8,7 @@ import "primeicons/primeicons.css";
 import "primereact/resources/primereact.min.css";
 import "primereact/resources/themes/nova-light/theme.css";
 import { ToastProvider } from "react-toast-notifications";
+import "@assets/css/global.scss";
 moment.locale("es");
 
 /*const client = new ApolloClient({

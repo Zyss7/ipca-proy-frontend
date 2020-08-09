@@ -26,7 +26,7 @@ const Login = () => {
     }
 
     setInterval(() => {
-      router.push("/");
+      router.push("/dashboard");
       setLoading(false);
     }, 3000);
   };
