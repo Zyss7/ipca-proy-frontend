@@ -1,25 +1,26 @@
 import CustomEditorText from "@components/CustomEditorText";
+import Link from "next/link";
 import React, { useState } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { useFormContext, Controller } from "react-hook-form";
 import { useToasts } from "react-toast-notifications";
-import Link from "next/link";
 import { PickList } from "primereact/picklist";
-const TareasForm = ({ title }) => {
+
+const MensajesForm = ({ title }) => {
   const {
     register,
     errors,
-    onGuardar,
     onEnviar,
     trigger,
     getValues,
     control,
   } = useFormContext();
-  const { addToast } = useToasts();
 
-  const [alumnos, setAlumnos] = useState([
-    { id: 54464, alumno: "Alejandro Coraizaca | M5A" },
+  const [remitentes, setRemitentes] = useState([
+    { id: 54464, remitentes: "Sebastián Villa| M5A" },
   ]);
+
+  const { addToast } = useToasts();
 
   const validarForm = (callback) => async (event) => {
     event.preventDefault();
@@ -38,20 +39,19 @@ const TareasForm = ({ title }) => {
     <React.Fragment>
       <main className="container-fluid">
         <h1 className="display-4 text-center">{title}</h1>
-
         <div className="row justify-content-center">
           <div className="col-md-8">
             <form>
               <Form.Group>
-                <Form.Label>Alumnos:</Form.Label>
+                <Form.Label>Remitentes:</Form.Label>
                 <Controller
-                  name="alumno"
+                  name="remitentes"
                   control={control}
                   defaultValue={[]}
                   rules={{
                     validate: (value) => {
                       if (value.length === 0) {
-                        addToast("DEBE SELECCIONAR AL MENOS UN ALUMNO", {
+                        addToast("DEBE SELECCIONAR AL MENOS UN REMITENTE", {
                           appearance: "error",
                         });
                         return "Este campo es obligatorio";
@@ -61,57 +61,47 @@ const TareasForm = ({ title }) => {
                   }}
                   render={({ onChange, value }) => (
                     <PickList
-                      source={alumnos}
+                      source={remitentes}
                       target={value || []}
-                      itemTemplate={(item) => item.alumno}
+                      itemTemplate={(item) => item.remitentes}
                       sourceHeader="Remitentes disponibles"
                       targetHeader="Remitentes"
                       showSourceControls={false}
                       showTargetControls={false}
                       responsive={true}
                       onChange={(evt) => {
-                        setAlumnos(evt.source);
+                        setRemitentes(evt.source);
                         onChange(evt.target);
                       }}
                     />
                   )}
                 />
               </Form.Group>
+
               <Form.Group>
-                <Form.Label>Titulo de la tarea:</Form.Label>
+                <Form.Label>Asunto:</Form.Label>
                 <Form.Control
-                  name="titulo"
+                  name="asunto"
                   size="sm"
-                  isInvalid={!!errors.titulo}
+                  isInvalid={!!errors.asunto}
                   ref={register({ required: "Este campo es Obligatorio" })}
                 />
                 <Form.Control.Feedback type="invalid">
-                  <p className="text-danger">{errors?.titulo?.message}</p>
+                  <p className="text-danger">{errors?.asunto?.message}</p>
                 </Form.Control.Feedback>
               </Form.Group>
               <CustomEditorText
-                label="Descripcion:"
-                name="descripcion"
+                label="Mensaje:"
+                name="mensaje"
                 rules={{
                   required: "Este campo es Obligatorio",
                 }}
               />
-              <Row className="justify-content-around">
+              <Row className="justify-content-center">
                 <div className="col-md-3">
                   <Link href="/tareas">
                     <a className="btn btn-sm btn-block btn-danger">Cancelar</a>
                   </Link>
-                </div>
-                <div className="col-md-3">
-                  <Button
-                    variant="success"
-                    type="submit"
-                    block
-                    size="sm"
-                    onClick={validarForm(onGuardar)}
-                  >
-                    Guardar
-                  </Button>
                 </div>
                 <div className="col-md-3">
                   <Button
@@ -133,4 +123,4 @@ const TareasForm = ({ title }) => {
   );
 };
 
-export default TareasForm;
+export default MensajesForm;

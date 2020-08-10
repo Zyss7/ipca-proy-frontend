@@ -27,7 +27,11 @@ moment.locale("es");
 
 export default function MyApp({ Component, pageProps }) {
   return (
-    <ToastProvider autoDismiss autoDismissTimeout={6000} placement="top-right">
+    <ToastProvider
+      autoDismiss
+      autoDismissTimeout={6000}
+      placement="bottom-right"
+    >
       <Component {...{ ...pageProps }} />
     </ToastProvider>
   );
