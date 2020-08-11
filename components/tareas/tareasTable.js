@@ -1,30 +1,18 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Tarea } from "@services/Tareas.service";
 
 const TareasTable = () => {
-  const tareas = [
-    {
-      id: 1234,
-      titulo: "Deber 1",
-      docente: {
-        nombreCompleto: "Este es el docente",
-      },
-      alumno: {
-        nombreCompleto: "Marcelo Vidal",
-      },
-    },
-    {
-      id: 1234,
-      titulo: "Deber 1",
-      docente: {
-        nombreCompleto: "Este es el docente",
-      },
-      alumno: {
-        nombreCompleto: "Marcelo Vidal",
-      },
-    },
-  ];
+  const [tareas, setTareas] = useState([]);
+
+  const init = useCallback(async () => {
+    setTareas(await Tarea.getAll());
+  }, []);
+
+  useEffect(() => {
+    init();
+  }, [init]);
 
   return (
     <React.Fragment>

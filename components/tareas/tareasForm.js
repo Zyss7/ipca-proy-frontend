@@ -1,11 +1,13 @@
 import CustomEditorText from "@components/CustomEditorText";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { useFormContext, Controller } from "react-hook-form";
 import { useToasts } from "react-toast-notifications";
 import Link from "next/link";
 import { PickList } from "primereact/picklist";
-const TareasForm = ({ title }) => {
+import _ from "lodash";
+
+const TareasForm = ({ title, almns = [] }) => {
   const {
     register,
     errors,
@@ -17,9 +19,7 @@ const TareasForm = ({ title }) => {
   } = useFormContext();
   const { addToast } = useToasts();
 
-  const [alumnos, setAlumnos] = useState([
-    { id: 54464, alumno: "Alejandro Coraizaca | M5A" },
-  ]);
+  const [alumnos, setAlumnos] = useState(almns);
 
   const validarForm = (callback) => async (event) => {
     event.preventDefault();
@@ -45,7 +45,7 @@ const TareasForm = ({ title }) => {
               <Form.Group>
                 <Form.Label>Alumnos:</Form.Label>
                 <Controller
-                  name="alumno"
+                  name="alumnos"
                   control={control}
                   defaultValue={[]}
                   rules={{
