@@ -10,23 +10,27 @@ const CreateTareaContainer = () => {
   const { addToast } = useToasts();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const tarea = localStorage.getItem("tarea");
-    if (tarea) {
-      methods.reset(JSON.parse(tarea));
-    }
-    console.log(methods.getValues());
-    const data = _.differenceBy(
-      [
-        { id: 54464, alumno: "Alejandro Coraizaca | M5A" },
-        { id: 12312321, alumno: "Alejandro asadf Coraizaca | M5A" },
-        { id: 451325234, alumno: "Alejandro 5643 Coraizaca | M5A" },
-      ],
-      methods.getValues("alumnos") || [],
-      "id"
-    );
+  const [alumnosDisponibles, setAlumnosDisponibles] = useState([]);
 
-    console.log(data);
+  useEffect(() => {
+    const tareaStr = localStorage.getItem("tarea");
+    if (tareaStr) {
+      const tarea = JSON.parse(tareaStr);
+      methods.reset(tarea);
+      const data = _.differenceBy(
+        [
+          { id: 54464, alumno: "Alejandro Coraizaca | M5A" },
+          { id: 12312321, alumno: "Alejandro asadf Coraizaca | M5A" },
+          { id: 451325234, alumno: "Alejandro 5643 Coraizaca | M5A" },
+        ],
+        tarea?.alumnos || [],
+        "id"
+      );
+
+      console.log(data);
+
+      setAlumnosDisponibles(data);
+    }
   }, []);
 
   const onGuardar = async (input) => {
@@ -45,15 +49,8 @@ const CreateTareaContainer = () => {
       <FormProvider {...methods} onGuardar={onGuardar} onEnviar={onEnviar}>
         <TareasForm
           title="Crear Tarea"
-          almns={_.differenceBy(
-            [
-              { id: 54464, alumno: "Alejandro Coraizaca | M5A" },
-              { id: 12312321, alumno: "Alejandro asadf Coraizaca | M5A" },
-              { id: 451325234, alumno: "Alejandro 5643 Coraizaca | M5A" },
-            ],
-            methods.getValues("alumnos") || [],
-            "id"
-          )}
+          almns={alumnosDisponibles}
+          setAlumnos={setAlumnosDisponibles}
         />
       </FormProvider>
     </PrivateLayout>

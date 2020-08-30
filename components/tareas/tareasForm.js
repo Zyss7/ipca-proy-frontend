@@ -1,13 +1,18 @@
 import CustomEditorText from "@components/CustomEditorText";
-import React, { useState, useEffect } from "react";
-import { Button, Form, Row } from "react-bootstrap";
-import { useFormContext, Controller } from "react-hook-form";
-import { useToasts } from "react-toast-notifications";
+import CustomPickList from "@components/Inputs/CustomPickList";
+import SimpleSelect from "@components/Inputs/SimpleSelect";
 import Link from "next/link";
-import { PickList } from "primereact/picklist";
-import _ from "lodash";
+import React from "react";
+import { Button, Form, Row } from "react-bootstrap";
+import { useFormContext } from "react-hook-form";
+import { useToasts } from "react-toast-notifications";
 
-const TareasForm = ({ title, almns = [] }) => {
+const ENVIO = {
+  AULA: "AULA",
+  ALUMNOS: "ALUMNOS",
+};
+
+const TareasForm = ({ title, almns, setAlumnos }) => {
   const {
     register,
     errors,
@@ -16,10 +21,9 @@ const TareasForm = ({ title, almns = [] }) => {
     trigger,
     getValues,
     control,
+    watch,
   } = useFormContext();
   const { addToast } = useToasts();
-
-  const [alumnos, setAlumnos] = useState(almns);
 
   const validarForm = (callback) => async (event) => {
     event.preventDefault();
@@ -42,12 +46,23 @@ const TareasForm = ({ title, almns = [] }) => {
         <div className="row justify-content-center">
           <div className="col-md-8">
             <form>
-              <Form.Group>
-                <Form.Label>Alumnos:</Form.Label>
-                <Controller
+              <SimpleSelect
+                name="envio"
+                label="Enviar por:"
+                options={[
+                  { label: ENVIO.AULA, value: ENVIO.AULA },
+                  { label: ENVIO.ALUMNOS, value: ENVIO.ALUMNOS },
+                ]}
+                rules={{ required: "Este campo es obligatorio" }}
+              />
+
+              {watch("envio") === ENVIO.ALUMNOS && (
+                <CustomPickList
                   name="alumnos"
-                  control={control}
-                  defaultValue={[]}
+                  source={almns}
+                  itemTemplate={(item) => item.alumno}
+                  sourceHeader="Alumnos disponibles"
+                  targetHeader="Alumnos"
                   rules={{
                     validate: (value) => {
                       if (value.length === 0) {
@@ -59,24 +74,29 @@ const TareasForm = ({ title, almns = [] }) => {
                       return true;
                     },
                   }}
-                  render={({ onChange, value }) => (
-                    <PickList
-                      source={alumnos}
-                      target={value || []}
-                      itemTemplate={(item) => item.alumno}
-                      sourceHeader="Remitentes disponibles"
-                      targetHeader="Remitentes"
-                      showSourceControls={false}
-                      showTargetControls={false}
-                      responsive={true}
-                      onChange={(evt) => {
-                        setAlumnos(evt.source);
-                        onChange(evt.target);
-                      }}
-                    />
-                  )}
                 />
-              </Form.Group>
+              )}
+              {watch("envio") === ENVIO.AULA && (
+                <CustomPickList
+                  name="aulas"
+                  source={almns}
+                  itemTemplate={(item) => item.alumno}
+                  sourceHeader="Aulas disponibles"
+                  targetHeader="Aulas"
+                  rules={{
+                    validate: (value) => {
+                      if (value.length === 0) {
+                        addToast("DEBE SELECCIONAR AL MENOS UN ALUMNO", {
+                          appearance: "error",
+                        });
+                        return "Este campo es obligatorio";
+                      }
+                      return true;
+                    },
+                  }}
+                />
+              )}
+
               <Form.Group>
                 <Form.Label>Titulo de la tarea:</Form.Label>
                 <Form.Control
@@ -89,6 +109,7 @@ const TareasForm = ({ title, almns = [] }) => {
                   <p className="text-danger">{errors?.titulo?.message}</p>
                 </Form.Control.Feedback>
               </Form.Group>
+
               <CustomEditorText
                 label="Descripcion:"
                 name="descripcion"

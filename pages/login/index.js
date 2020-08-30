@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { Form } from "react-bootstrap";
+import { useMutation } from "@apollo/client";
 import PublicLayout from "@layouts/publicLayout";
-import { useForm } from "react-hook-form";
+import { Usuario } from "@services/Usuario.service";
 import { useRouter } from "next/router";
+import React, { useState, useEffect } from "react";
+import { Form } from "react-bootstrap";
+import { useForm } from "react-hook-form";
 import { useToasts } from "react-toast-notifications";
 
 const Login = () => {
@@ -10,28 +12,30 @@ const Login = () => {
   const { register, errors, handleSubmit } = useForm({ mode: "onChange" });
   const { addToast } = useToasts();
   const router = useRouter();
+  const [login] = useMutation(Usuario.login);
 
-  const onSubmit = async (data) => {
+  useEffect(() => {
+    const usuario = Usuario.getUsuarioStorage();
+    if (usuario) {
+      router.push("/dashboard");
+    }
+  }, []);
+
+  const onSubmit = async (input) => {
     setLoading(true);
-    console.log("DATA: ", data);
 
+    const { data } = await login({ variables: { ...input } });
     //SUPONIENDO SE HAC UNA PETICION
     //Y EL USUARIO ESTA BLOQUEADO
-    if (data.usuario === "Andres") {
-      setLoading(false);
-      addToast("ESTE USUARIO ESTA BLOQUEADO", {
-        appearance: "error",
-      });
-      return;
-    }
 
-    setInterval(() => {
+    const { tokenAuth } = data;
+
+    if (!tokenAuth.errors) {
+      Usuario.guardarUsuarioStorage(tokenAuth.user);
       router.push("/dashboard");
-      setLoading(false);
-    }, 3000);
+    }
+    setLoading(false);
   };
-
-  console.log("ERORRES: ", errors);
 
   return (
     <PublicLayout title="Login">
@@ -54,13 +58,13 @@ const Login = () => {
                   <div className="form-group col-12">
                     <Form.Label>Usuario</Form.Label>
                     <Form.Control
-                      name="usuario"
+                      name="username"
                       ref={register({ required: "Este campo es obligatorio" })}
                       //isInvalid={errors.usuario !== undefined}
-                      isInvalid={!!errors.usuario}
+                      isInvalid={!!errors.username}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {errors.usuario && errors.usuario.message}
+                      {errors.username && errors.username.message}
                     </Form.Control.Feedback>
                   </div>
 

@@ -1,3 +1,5 @@
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import "@assets/css/global.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "jquery";
 import moment from "moment";
@@ -8,22 +10,21 @@ import "primeicons/primeicons.css";
 import "primereact/resources/primereact.min.css";
 import "primereact/resources/themes/nova-light/theme.css";
 import { ToastProvider } from "react-toast-notifications";
-import "@assets/css/global.scss";
 moment.locale("es");
 
-/*const client = new ApolloClient({
-  uri: 'http://localhost:8000/graphql',
+const client = new ApolloClient({
+  uri: "https://pacific-anchorage-97875.herokuapp.com/graphql",
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'no-cache',
-      errorPolicy: 'ignore',
+      fetchPolicy: "no-cache",
+      errorPolicy: "ignore",
     },
     query: {
-      fetchPolicy: 'no-cache',
+      fetchPolicy: "no-cache",
     },
   },
-});*/
+});
 
 export default function MyApp({ Component, pageProps }) {
   return (
@@ -32,7 +33,9 @@ export default function MyApp({ Component, pageProps }) {
       autoDismissTimeout={6000}
       placement="bottom-right"
     >
-      <Component {...{ ...pageProps }} />
+      <ApolloProvider client={client}>
+        <Component {...{ ...pageProps }} />
+      </ApolloProvider>
     </ToastProvider>
   );
 }

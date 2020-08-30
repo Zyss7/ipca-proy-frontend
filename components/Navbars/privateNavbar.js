@@ -1,8 +1,17 @@
 import React from "react";
 import { Navbar, NavDropdown, Nav, Button } from "react-bootstrap";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { Usuario } from "@services/Usuario.service";
 
 const PrivateNavbar = () => {
+  const router = useRouter();
+
+  const loggout = () => {
+    Usuario.logoutUsuario();
+    router.push("/login");
+  };
+
   return (
     <Navbar
       collapseOnSelect
@@ -41,7 +50,9 @@ const PrivateNavbar = () => {
           </NavDropdown>
 
           <Nav className="float-right">
-            <Button variant="outline-light">Cerrar Sesión</Button>
+            <Button variant="outline-light" onClick={loggout}>
+              Cerrar Sesión
+            </Button>
           </Nav>
         </Nav>
       </Navbar.Collapse>
