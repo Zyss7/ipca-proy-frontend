@@ -7,13 +7,13 @@ import MensajesSinLeerTable from "@components/dashboard/mensajesSinLeerTable";
 const DashboardContainer = () => {
   return (
     <PrivateLayout>
-      <main className="container-fluid">
-        <div className="row">
-          <div className="col-lg-4 align-self-center">
+      <main className='container-fluid'>
+        <div className='row'>
+          <div className='col-lg-4 align-self-center'>
             <CardInfoUsuario />
           </div>
 
-          <div className="col-lg-7 align-self-center ">
+          <div className='col-lg-7 align-self-center '>
             <TareasPendientesTable />
             <MensajesSinLeerTable />
           </div>

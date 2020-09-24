@@ -28,6 +28,7 @@ const CustomEditorText = ({ label, name, rules }) => {
         name={name}
         control={control}
         rules={rules}
+        defaultValue=''
         render={({ onChange, value }) => (
           <CKEditor
             editor={ClassicEditor}
@@ -41,7 +42,7 @@ const CustomEditorText = ({ label, name, rules }) => {
       />
 
       <ErrorMessage errors={errors} name={name}>
-        {({ message }) => <p className="text-danger">{message}</p>}
+        {({ message }) => <p className='text-danger'>{message}</p>}
       </ErrorMessage>
     </Form.Group>
   );

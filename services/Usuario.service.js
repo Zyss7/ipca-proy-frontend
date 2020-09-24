@@ -13,6 +13,20 @@ export class Usuario {
         user {
           id
           username
+          persona {
+            id
+            identificacion
+            tipoIdentificacion
+            str
+            correo
+            telefono
+            celular
+            fechaNacimiento
+          }
+          grupos {
+            id
+            nombre
+          }
         }
       }
     }
@@ -20,6 +34,7 @@ export class Usuario {
 
   static guardarUsuarioStorage = (usuario) => {
     try {
+      console.log("usuario:", usuario);
       localStorage.setItem(this.STORAGE_USU_KEY, JSON.stringify(usuario));
     } catch (error) {
       return false;
@@ -30,7 +45,6 @@ export class Usuario {
   static getUsuarioStorage = () => {
     try {
       const usuStr = localStorage.getItem(this.STORAGE_USU_KEY);
-
       if (usuStr) {
         return JSON.parse(usuStr);
       }
@@ -40,7 +54,30 @@ export class Usuario {
     }
   };
 
+  static getMappedUsuario = () => {
+    const usuario = this.getUsuarioStorage();
+    const persona = usuario.persona;
+    delete usuario.persona;
+    delete usuario.__typename;
+    return {
+      usuario: usuario,
+      persona: {
+        id: persona.id,
+        identificacion: persona.identificacion,
+        str: persona.str,
+        correo: persona.correo,
+      },
+    };
+  };
+
   static logoutUsuario = () => {
     localStorage.removeItem(this.STORAGE_USU_KEY);
+  };
+
+  static isDocente = () => {
+    return this.getUsuarioStorage().rolStr === "DOCENTE";
+  };
+  static isRepresentante = () => {
+    return this.getUsuarioStorage().rolStr === "REPRESENTANTE";
   };
 }

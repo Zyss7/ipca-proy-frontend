@@ -1,24 +1,41 @@
-import React from "react";
-import PrivateLayout from "@layouts/privateLayout";
 import TareasTable from "@components/tareas/tareasTable";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import PrivateLayout from "@layouts/privateLayout";
+import { Tarea } from "@services/Tareas.service";
 import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 
 const TareasContainer = () => {
+  const [data, setData] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    setCargando(true);
+    Tarea.getAll().then((res) => {
+      setData(res);
+      setCargando(false);
+    });
+  }, []);
+
   return (
     <PrivateLayout>
-      <main className="container-fluid">
-        <h1 className="text-center display-4">
+      <main className='container-fluid'>
+        <h1 className='text-center display-4 my-5'>
           Tareas
-          <Link href="/tareas/create">
-            <AiOutlinePlusCircle color="green" className="pointer" />
+          <Link href='/tareas/form'>
+            <a>
+              <AiOutlinePlusCircle color='green' className='pointer' />
+            </a>
           </Link>
         </h1>
-        <div className="row justify-content-center">
-          <div className="col-lg-8 align-self-center ">
-            <TareasTable />
+
+        {!cargando && (
+          <div className='row justify-content-center'>
+            <div className='col-lg-11 align-self-center '>
+              <TareasTable data={data} />
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </PrivateLayout>
   );

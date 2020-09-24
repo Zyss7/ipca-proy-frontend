@@ -1,66 +1,116 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { DataTable } from "primereact/datatable";
+import { useRouter } from "next/router";
 import { Column } from "primereact/column";
-import { Tarea } from "@services/Tareas.service";
+import { DataTable } from "primereact/datatable";
+import React, { useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 
-const TareasTable = () => {
-  const [tareas, setTareas] = useState([]);
+const TareasTable = ({ data }) => {
+  const router = useRouter();
+  const [modalShow, setModalShow] = useState(false);
+  const [tarea, setTarea] = useState({});
 
-  const init = useCallback(async () => {
-    setTareas(await Tarea.getAll());
-  }, []);
+  const onClickEditar = (rowData) => () => {
+    router.push(`/tareas/form?id=${rowData.id}`);
+  };
 
-  useEffect(() => {
-    init();
-  }, [init]);
+  const toggle = () => {
+    setModalShow(!modalShow);
+  };
+
+  const onClickVerEstudiantes = (rowData) => (e) => {
+    toggle();
+    setTarea(rowData);
+  };
 
   return (
     <React.Fragment>
-      <div className="datatable-doc-demo">
+      <div className='datatable-doc-demo'>
         <DataTable
-          value={tareas}
-          className="p-datatable-customers shadow-lg"
+          value={data}
+          className='p-datatable-gridlines shadow-lg'
           rowHover
           paginator
-          currentPageReportTemplate="{totalRecords} registros totales"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
           rows={10}
           rowsPerPageOptions={[10, 25, 50]}
-          responsive
-          emptyMessage="No se han encontrado resultados"
-        >
+          autoLayout
+          emptyMessage='No se han encontrado resultados'>
           <Column
-            header="#"
-            className="text-center"
+            header='#'
+            className='text-center'
             style={{ width: "50px" }}
             body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
           />
 
-          <Column header="Tarea" field="titulo" filter sortable />
+          <Column header='Tarea' field='titulo' filter sortable />
           <Column
-            header="Docente"
-            field="docente.nombreCompleto"
+            header='Fecha de entrega'
+            field='fechaEntrega'
             filter
             sortable
           />
           <Column
-            header="Alumno"
-            field="alumno.nombreCompleto"
+            header='Estado de envio'
             filter
             sortable
+            style={{ width: "175px" }}
+            body={(rowData) => (
+              <React.Fragment>
+                {rowData.estadoEnvio === "G" && "PENDIENTE DE ENVIAR"}
+                {rowData.estadoEnvio === "E" && "ENVIADA"}
+                {/* TODO: VOLVER A ACTIVAR LA TAREA rowData.estadoEnvio === "A" && "ANULADA" */}
+              </React.Fragment>
+            )}
           />
+
           <Column
-            header="Opciones"
-            body={(rowData) => {
-              return (
-                <button className="btn btn-block btn-info btn-sm">
-                  Ver tarea
-                </button>
-              );
-            }}
+            header='Opciones'
+            bodyStyle={{ padding: "0.5rem 0.5rem 0.5rem 0.5rem" }}
+            body={(rowData) => (
+              <React.Fragment>
+                <Button block size='sm' onClick={onClickEditar(rowData)}>
+                  Editar
+                </Button>
+                <Button
+                  block
+                  size='sm'
+                  onClick={onClickVerEstudiantes(rowData)}>
+                  Ver Estudiantes
+                </Button>
+
+                <Button block size='sm' onClick={onClickEditar(rowData)}>
+                  Comentarios
+                </Button>
+              </React.Fragment>
+            )}
           />
         </DataTable>
       </div>
+
+      <Modal
+        size='lg'
+        aria-labelledby='contained-modal-title-vcenter'
+        centered
+        show={modalShow}
+        onHide={toggle}>
+        <Modal.Header closeButton>
+          <Modal.Title id='contained-modal-title-vcenter'>
+            {tarea?.titulo}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h5>Alumnos a los que se envio esta tarea</h5>
+          <ul>
+            {tarea?.estudiantes?.map((e, index) => (
+              <li key={index}>{e?.persona?.str}</li>
+            ))}
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={toggle} size='sm' variant='outline-danger'>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </React.Fragment>
   );
 };
