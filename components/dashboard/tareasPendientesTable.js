@@ -1,63 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Tarea } from "@services/Tareas.service";
 
 const TareasPendientesTable = () => {
-  const tareas = [
-    {
-      id: 1234,
-      titulo: "Deber 1",
-      docente: {
-        nombreCompleto: "Este es el docente",
-      },
-      alumno: {
-        nombreCompleto: "Marcelo Vidal",
-      },
-    },
-    {
-      id: 1234,
-      titulo: "Deber 1",
-      docente: {
-        nombreCompleto: "Este es el docente",
-      },
-      alumno: {
-        nombreCompleto: "Marcelo Vidal",
-      },
-    },
-  ];
+  const [tareas, setTareas] = useState([]);
+
+  const getTareas = async () => {
+    const tareas = await Tarea.getTareasAlumno();
+    setTareas(tareas);
+  };
+
+  useEffect(() => {
+    getTareas();
+  }, []);
 
   return (
     <React.Fragment>
       <h3>Tareas Pendientes</h3>
 
-      <div className="datatable-doc-demo">
+      <div className='datatable-doc-demo'>
         <DataTable
           value={tareas}
-          className="p-datatable-customers shadow-lg"
+          className='p-datatable-customers shadow-lg'
           rowHover
           paginator
-          currentPageReportTemplate="{totalRecords} registros totales"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          currentPageReportTemplate='{totalRecords} registros totales'
+          paginatorTemplate='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
           rows={10}
           rowsPerPageOptions={[10, 25, 50]}
           responsive
-          emptyMessage="No se han encontrado resultados"
-        >
+          emptyMessage='No se han encontrado resultados'>
           <Column
-            header="#"
-            className="text-center"
+            header='#'
+            className='text-center'
             style={{ width: "50px" }}
             body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
           />
 
-          <Column header="Tarea" field="titulo" />
-          <Column header="Docente" field="docente.nombreCompleto" />
-          <Column header="Alumno" field="alumno.nombreCompleto" />
+          <Column header='Tarea' field='titulo' />
+          <Column header='Docente' field='docente.str' />
           <Column
-            header="Opciones"
+            header='Opciones'
             body={(rowData) => {
               return (
-                <button className="btn btn-block btn-info btn-sm">
+                <button className='btn btn-block btn-info btn-sm'>
                   Ver tarea
                 </button>
               );
