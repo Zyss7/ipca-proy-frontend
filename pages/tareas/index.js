@@ -6,7 +6,6 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 
-
 const TareasContainer = () => {
   const [data, setData] = useState([]);
   const [cargando, setCargando] = useState(true);
