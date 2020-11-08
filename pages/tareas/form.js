@@ -2,7 +2,6 @@ import CustomDateTimePicker from "@components/Inputs/CustomDateTimePicker";
 import PrivateLayout from "@layouts/privateLayout";
 import { Tarea } from "@services/Tareas.service";
 import { useSpeak } from "hooks/useSpeak";
-import { route } from "next/dist/next-server/server/router";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
@@ -27,8 +26,6 @@ const FormTareaContainer = ({ id }) => {
       Tarea.getById(id).then((res) => {
         methods.reset(res);
       });
-    } else {
-      router.replace("/tareas");
     }
   }, []);
 
@@ -45,9 +42,13 @@ const FormTareaContainer = ({ id }) => {
   };
 
   const onEnviar = async (data) => {
-    console.log(data);
-    await Tarea.update(id, data);
-    router.push(`/tareas/enviar?id=${id}`);
+    if (id) {
+      await Tarea.update(id, data);
+      return router.push(`/tareas/enviar?id=${id}`);
+    }
+    const res = await Tarea.save(data);
+    router.replace(`/tareas/form?id=${res.id}`);
+    return router.replace(`/tareas/enviar?id=${res.id}`);
   };
 
   const onSubmitError = () => {

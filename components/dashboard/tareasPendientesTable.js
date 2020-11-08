@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { Tarea } from "@services/Tareas.service";
 import { useUsuario } from "context/UsuarioContext";
-import { Button } from "primereact/button";
 import useCustomRouter from "hooks/useCustomRouter";
+import { useSpeak } from "hooks/useSpeak";
+import { Button } from "primereact/button";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import React, { useEffect, useState } from "react";
 
 const TareasPendientesTable = () => {
   const [tareas, setTareas] = useState([]);
@@ -12,9 +13,16 @@ const TareasPendientesTable = () => {
   const [usuario] = useUsuario();
 
   const router = useCustomRouter();
+  const { speak } = useSpeak();
 
   const getTareas = async () => {
-    const tareas = await Tarea.getAll({ estadoEnvio: Tarea.PENDIENTE });
+    const queryParam = { estadoEnvio: Tarea.PENDIENTE };
+
+    if (usuario.isAlumno) {
+      queryParam.estadoEnvio = Tarea.ENVIADO;
+    }
+
+    const tareas = await Tarea.getAll(queryParam);
 
     console.log(tareas);
 
@@ -52,12 +60,14 @@ const TareasPendientesTable = () => {
           <Column header='Tarea' field='titulo' />
           {usuario?.isAlumno && <Column header='Docente' field='docente.str' />}
 
-          <Column
-            header='# Alumnos'
-            body={(rowData) => {
-              return rowData?.alumnos?.length || "PENDIENTE DE REGISTRO";
-            }}
-          />
+          {usuario?.isDocente && (
+            <Column
+              header='# Alumnos'
+              body={(rowData) => {
+                return rowData?.alumnos?.length || "PENDIENTE DE REGISTRO";
+              }}
+            />
+          )}
 
           <Column
             header='Opciones'
@@ -70,6 +80,24 @@ const TareasPendientesTable = () => {
                       className='p-button-sm  p-button-info'
                       onClick={router.goTo(`/tareas/form?id=${rowData.id}`)}
                     />
+                  </React.Fragment>
+                )}
+
+                {usuario?.isAlumno && (
+                  <React.Fragment>
+                    <button
+                      className='p-button  p-button-info'
+                      onClick={router.goTo(`/tareas/detalle?id=${rowData.id}`)}>
+                      <i className='pi pi-info-circle' />
+                    </button>
+
+                    <button
+                      className='p-button p-button-info'
+                      onClick={() => {
+                        speak(rowData.descripcionHablada);
+                      }}>
+                      <i className='pi pi-info-circle' />
+                    </button>
                   </React.Fragment>
                 )}
               </React.Fragment>

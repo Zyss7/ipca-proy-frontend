@@ -2,16 +2,15 @@ import LoadingWrapper from "@components/Loadings/LoadingWrapper";
 import TareasTable from "@components/tareas/tareasTable";
 import PrivateLayout from "@layouts/privateLayout";
 import { Tarea } from "@services/Tareas.service";
-import { Usuario } from "@services/Usuario.service";
 import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
-import Link from "next/link";
+import useCustomRouter from "hooks/useCustomRouter";
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 
 const TareasContainer = () => {
   const [data, setData] = useState([]);
   const [cargando, setCargando] = useState(true);
-
+  const router = useCustomRouter();
   const [usuario] = useUsuario();
   const [isUsuarioLoading] = useUsuarioIsLoading();
 
@@ -23,7 +22,13 @@ const TareasContainer = () => {
   const cargarTareas = () => {
     setCargando(true);
     if (!isUsuarioLoading) {
-      Tarea.getAll().then((res) => {
+      const queryParams = {};
+
+      if (usuario.isAlumno) {
+        queryParams.estadoEnvio = "ENVIADO";
+      }
+
+      Tarea.getAll(queryParams).then((res) => {
         setData(res);
         console.log(res);
         setCargando(false);
@@ -38,11 +43,11 @@ const TareasContainer = () => {
           <h1 className='text-center display-4 my-5'>
             Tareas
             {usuario?.isDocente && (
-              <Link href='/tareas/form'>
-                <a>
-                  <AiOutlinePlusCircle color='green' className='pointer' />
-                </a>
-              </Link>
+              <AiOutlinePlusCircle
+                color='green'
+                className='pointer'
+                onClick={router.goTo("/tareas/form")}
+              />
             )}
           </h1>
 

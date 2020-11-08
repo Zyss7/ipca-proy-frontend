@@ -1,8 +1,22 @@
-import { Usuario } from "./Usuario.service";
+import appFirebase, { Firebase } from "fire-base";
 
 export class Comentario {
+  static db = appFirebase.db.collection("mensajes");
+
   static addComentario = async (data) => {
-    const usuario = Usuario.getUsuarioStorage();
-    console.log(usuario);
+    await this.db.add(data);
+  };
+
+  static getAll = (id, callback) => {
+    this.db
+      .where("room", "==", "comentariosTareas")
+      .where("uuid", "==", id)
+      .onSnapshot((snap) => {
+        callback(snap.docs.map(Firebase.defaultMapper));
+      });
+  };
+
+  static delete = async (id) => {
+    await this.db.doc(id).delete();
   };
 }

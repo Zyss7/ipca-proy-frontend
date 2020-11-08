@@ -4,6 +4,7 @@ import { Usuario } from "./Usuario.service";
 
 export class Tarea {
   static PENDIENTE = "PENDIENTE";
+  static ENVIADO = "ENVIADO";
 
   static getAll = async (queryParams = {}) => {
     const usuario = Usuario.getMappedUsuario();
@@ -33,9 +34,9 @@ export class Tarea {
     tarea.createdAt = moment().toISOString();
     tarea.docente = this.mappDocente();
 
-    const { data } = await Axios.post("tareas", tarea);
+    const { data } = await Axios.post("create-tarea", tarea);
 
-    return data;
+    return data.data;
   };
 
   static update = async (id, tarea) => {

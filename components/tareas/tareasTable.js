@@ -1,13 +1,14 @@
 import { useUsuario } from "context/UsuarioContext";
-import { useRouter } from "next/router";
+import useCustomRouter from "hooks/useCustomRouter";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React, { useState } from "react";
-import { Button, Modal } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ModalEliminarTarea from "./modalEliminar";
+import moment from "moment";
 
 const TareasTable = ({ data, cargarTareas }) => {
-  const router = useRouter();
+  const router = useCustomRouter();
   const [modalShow, setModalShow] = useState(false);
 
   const [showEliminar, setShowEliminar] = useState(false);
@@ -16,21 +17,43 @@ const TareasTable = ({ data, cargarTareas }) => {
 
   const [usuario] = useUsuario();
 
+  const [expandedRows, setExpandedRows] = useState([]);
+
+  const rowExpandTemplate = (data) => {
+    return (
+      <React.Fragment>
+        <div className='container-fluid'>
+          <div className='row'>
+            <div className='col-12 text-center'>
+              <h1>Tarea: {data.titulo}</h1>
+              <button
+                className='btn btn-sm btn-primary'
+                onClick={router.goTo(`/tareas/detalle?id=${data.id}`)}>
+                Ver tarea completa
+              </button>
+            </div>
+
+            <div className='col-12'>
+              <h4>Alumnos:</h4>
+              <ol>
+                {data?.alumnos?.map((alumno, index) => (
+                  <li key={index}>{alumno.str}</li>
+                ))}
+              </ol>
+              <h4>Estado: {data.estadoEnvio}</h4>
+            </div>
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
+
   const onClickEditar = (rowData) => () => {
     router.push(`/tareas/form?id=${rowData.id}`);
   };
 
-  const toggle = () => {
-    setModalShow(!modalShow);
-  };
-
   const toggleEliminar = () => {
     setShowEliminar(!showEliminar);
-  };
-
-  const onClickVerAlumnos = (rowData) => (e) => {
-    toggle();
-    setTarea(rowData);
   };
 
   const onClickEliminar = (rowData) => () => {
@@ -40,7 +63,7 @@ const TareasTable = ({ data, cargarTareas }) => {
 
   return (
     <React.Fragment>
-      <div className='datatable-doc-demo'>
+      <div className='datatable-doc-demo mb-5'>
         <DataTable
           value={data}
           className='p-datatable-gridlines shadow-lg'
@@ -49,7 +72,13 @@ const TareasTable = ({ data, cargarTareas }) => {
           rows={10}
           rowsPerPageOptions={[10, 25, 50]}
           autoLayout
-          emptyMessage='No se han encontrado resultados'>
+          emptyMessage='No se han encontrado resultados'
+          expandedRows={expandedRows}
+          onRowToggle={(e) => setExpandedRows(e.data)}
+          //onRowExpand={this.onRowExpand}
+          //onRowCollapse={this.onRowCollapse}
+          rowExpansionTemplate={rowExpandTemplate}>
+          <Column expander style={{ width: "4em" }} />
           <Column
             header='#'
             className='text-center'
@@ -58,11 +87,24 @@ const TareasTable = ({ data, cargarTareas }) => {
           />
 
           <Column header='Tarea' field='titulo' filter sortable />
+
           <Column
-            header='Fecha de entrega'
-            field='fechaEntrega'
+            header='Fecha de creacion'
             filter
             sortable
+            sortField='createdAt'
+            body={(rowData) => {
+              return moment(rowData.createdAt).format("LLL");
+            }}
+          />
+          <Column
+            header='Fecha de entrega'
+            filter
+            sortable
+            sortField='fechaEntrega'
+            body={(rowData) => {
+              return moment(rowData.fechaEntrega).format("LLL");
+            }}
           />
           <Column
             header='Estado de envio'
@@ -77,62 +119,32 @@ const TareasTable = ({ data, cargarTareas }) => {
             bodyStyle={{ padding: "0.5rem 0.5rem 0.5rem 0.5rem" }}
             body={(rowData) => (
               <React.Fragment>
-                {usuario.isDocente && (
-                  <React.Fragment>
-                    <Button block size='sm' onClick={onClickEditar(rowData)}>
-                      Editar
-                    </Button>
-                    <Button
-                      block
-                      size='sm'
-                      variant='danger'
-                      onClick={onClickEliminar(rowData)}>
-                      Eliminar
-                    </Button>
-                  </React.Fragment>
-                )}
+                <div className='d-flex flex-row justify-content-around'>
+                  {usuario.isDocente && (
+                    <React.Fragment>
+                      <Button size='sm' onClick={onClickEditar(rowData)}>
+                        <i className='pi pi-pencil mt-1' />
+                      </Button>
+                      <Button
+                        size='sm'
+                        variant='danger'
+                        onClick={onClickEliminar(rowData)}>
+                        <i className='pi pi-trash mt-1' />
+                      </Button>
+                    </React.Fragment>
+                  )}
 
-                <Button
-                  block
-                  size='sm'
-                  onClick={onClickVerAlumnos(rowData)}>
-                  Ver Estudiantes
-                </Button>
-
-                <Button block size='sm' onClick={onClickEditar(rowData)}>
-                  Comentarios
-                </Button>
+                  <button
+                    className='btn btn-sm btn-info'
+                    onClick={router.goTo(`/tareas/detalle?id=${rowData.id}`)}>
+                    <i className='pi pi-info-circle mt-1' />
+                  </button>
+                </div>
               </React.Fragment>
             )}
           />
         </DataTable>
       </div>
-
-      <Modal
-        size='lg'
-        aria-labelledby='contained-modal-title-vcenter'
-        centered
-        show={modalShow}
-        onHide={toggle}>
-        <Modal.Header closeButton>
-          <Modal.Title id='contained-modal-title-vcenter'>
-            {tarea?.titulo}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <h5>Alumnos a los que se envio esta tarea</h5>
-          <ol>
-            {tarea?.alumnos?.map((e, index) => (
-              <li key={index}>{e?.str}</li>
-            ))}
-          </ol>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={toggle} size='sm' variant='outline-danger'>
-            Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
 
       <ModalEliminarTarea
         toggleEliminar={toggleEliminar}
