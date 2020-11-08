@@ -15,41 +15,42 @@ const PrivateNavbar = () => {
   return (
     <Navbar
       collapseOnSelect
-      expand='sm'
-      bg='primary'
-      variant='dark'
-      sticky='top'
-      className='mb-3'>
-      <Navbar.Toggle aria-controls='responsive-navbar-nav' />
-      <Navbar.Collapse id='responsive-navbar-nav'>
-        <Nav className='mr-auto'>
-          <Link href='/dashboard'>
-            <Nav.Link as='a'>Inicio</Nav.Link>
+      expand="sm"
+      bg="primary"
+      variant="dark"
+      sticky="top"
+      className="mb-3"
+    >
+      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="mr-auto">
+          <Link href="/dashboard">
+            <Nav.Link as="a">Inicio</Nav.Link>
           </Link>
-          <Link href='/tareas'>
-            <Nav.Link as='a'>Tareas</Nav.Link>
-          </Link>
-
-          <Link href='/mensajes'>
-            <Nav.Link as='a'>Mensajes</Nav.Link>
+          <Link href="/tareas">
+            <Nav.Link as="a">Tareas</Nav.Link>
           </Link>
 
-          <NavDropdown title='Personas' id='collasible-nav-dropdown'>
-            <Link href='/personas'>
-              <NavDropdown.Item as='a'>Personas</NavDropdown.Item>
+          <Link href="/mensajes">
+            <Nav.Link as="a">Mensajes</Nav.Link>
+          </Link>
+
+          <Link href="/playlist">
+            <Nav.Link as="a">Playlist</Nav.Link>
+          </Link>
+
+          <NavDropdown title="Información" id="collasible-nav-dropdown">
+            <Link href="/docentes">
+              <NavDropdown.Item as="a">Docentes</NavDropdown.Item>
             </Link>
 
-            <Link href='/docentes'>
-              <NavDropdown.Item as='a'>Docentes</NavDropdown.Item>
-            </Link>
-
-            <Link href='/paginas/inicio'>
-              <NavDropdown.Item as='a'>Alumnos</NavDropdown.Item>
+            <Link href="/paginas/inicio">
+              <NavDropdown.Item as="a">Alumnos</NavDropdown.Item>
             </Link>
           </NavDropdown>
 
-          <Nav className='float-right'>
-            <Button variant='outline-light' onClick={loggout}>
+          <Nav className="float-right">
+            <Button variant="outline-light" onClick={loggout}>
               Cerrar Sesión
             </Button>
           </Nav>
