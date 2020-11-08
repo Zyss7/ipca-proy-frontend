@@ -1,3 +1,4 @@
+import { useUsuario } from "context/UsuarioContext";
 import { useRouter } from "next/router";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
@@ -13,6 +14,8 @@ const TareasTable = ({ data, cargarTareas }) => {
 
   const [tarea, setTarea] = useState({});
 
+  const [usuario] = useUsuario();
+
   const onClickEditar = (rowData) => () => {
     router.push(`/tareas/form?id=${rowData.id}`);
   };
@@ -25,7 +28,7 @@ const TareasTable = ({ data, cargarTareas }) => {
     setShowEliminar(!showEliminar);
   };
 
-  const onClickVerEstudiantes = (rowData) => (e) => {
+  const onClickVerAlumnos = (rowData) => (e) => {
     toggle();
     setTarea(rowData);
   };
@@ -66,13 +69,7 @@ const TareasTable = ({ data, cargarTareas }) => {
             filter
             sortable
             style={{ width: "175px" }}
-            body={(rowData) => (
-              <React.Fragment>
-                {rowData.estadoEnvio === "G" && "PENDIENTE DE ENVIAR"}
-                {rowData.estadoEnvio === "E" && "ENVIADA"}
-                {/* TODO: VOLVER A ACTIVAR LA TAREA rowData.estadoEnvio === "A" && "ANULADA" */}
-              </React.Fragment>
-            )}
+            field='estadoEnvio'
           />
 
           <Column
@@ -80,20 +77,25 @@ const TareasTable = ({ data, cargarTareas }) => {
             bodyStyle={{ padding: "0.5rem 0.5rem 0.5rem 0.5rem" }}
             body={(rowData) => (
               <React.Fragment>
-                <Button block size='sm' onClick={onClickEditar(rowData)}>
-                  Editar
-                </Button>
+                {usuario.isDocente && (
+                  <React.Fragment>
+                    <Button block size='sm' onClick={onClickEditar(rowData)}>
+                      Editar
+                    </Button>
+                    <Button
+                      block
+                      size='sm'
+                      variant='danger'
+                      onClick={onClickEliminar(rowData)}>
+                      Eliminar
+                    </Button>
+                  </React.Fragment>
+                )}
+
                 <Button
                   block
                   size='sm'
-                  variant='danger'
-                  onClick={onClickEliminar(rowData)}>
-                  Eliminar
-                </Button>
-                <Button
-                  block
-                  size='sm'
-                  onClick={onClickVerEstudiantes(rowData)}>
+                  onClick={onClickVerAlumnos(rowData)}>
                   Ver Estudiantes
                 </Button>
 
@@ -120,8 +122,8 @@ const TareasTable = ({ data, cargarTareas }) => {
         <Modal.Body>
           <h5>Alumnos a los que se envio esta tarea</h5>
           <ol>
-            {tarea?.estudiantes?.map((e, index) => (
-              <li key={index}>{e?.persona?.str}</li>
+            {tarea?.alumnos?.map((e, index) => (
+              <li key={index}>{e?.str}</li>
             ))}
           </ol>
         </Modal.Body>

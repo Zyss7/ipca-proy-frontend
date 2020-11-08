@@ -2,12 +2,22 @@ import React, { useEffect, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Tarea } from "@services/Tareas.service";
+import { useUsuario } from "context/UsuarioContext";
+import { Button } from "primereact/button";
+import useCustomRouter from "hooks/useCustomRouter";
 
 const TareasPendientesTable = () => {
   const [tareas, setTareas] = useState([]);
 
+  const [usuario] = useUsuario();
+
+  const router = useCustomRouter();
+
   const getTareas = async () => {
-    const tareas = await Tarea.getTareasAlumno();
+    const tareas = await Tarea.getAll({ estadoEnvio: Tarea.PENDIENTE });
+
+    console.log(tareas);
+
     setTareas(tareas);
   };
 
@@ -17,18 +27,19 @@ const TareasPendientesTable = () => {
 
   return (
     <React.Fragment>
-      <h3>Tareas Pendientes</h3>
+      {usuario.isDocente && <h3>Tareas pendientes de terminar de editar</h3>}
+      {usuario.isAlumno && <h3>Tareas pendientes de realizar</h3>}
 
       <div className='datatable-doc-demo'>
         <DataTable
           value={tareas}
-          className='p-datatable-customers shadow-lg'
+          className='p-datatable-customers shadow-lg p-datatable-gridlines'
           rowHover
           paginator
           currentPageReportTemplate='{totalRecords} registros totales'
           paginatorTemplate='FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown'
-          rows={10}
-          rowsPerPageOptions={[10, 25, 50]}
+          rows={3}
+          rowsPerPageOptions={[3, 5, 10, 25, 50]}
           responsive
           emptyMessage='No se han encontrado resultados'>
           <Column
@@ -39,16 +50,30 @@ const TareasPendientesTable = () => {
           />
 
           <Column header='Tarea' field='titulo' />
-          <Column header='Docente' field='docente.str' />
+          {usuario?.isAlumno && <Column header='Docente' field='docente.str' />}
+
+          <Column
+            header='# Alumnos'
+            body={(rowData) => {
+              return rowData?.alumnos?.length || "PENDIENTE DE REGISTRO";
+            }}
+          />
+
           <Column
             header='Opciones'
-            body={(rowData) => {
-              return (
-                <button className='btn btn-block btn-info btn-sm'>
-                  Ver tarea
-                </button>
-              );
-            }}
+            body={(rowData) => (
+              <React.Fragment>
+                {usuario?.isDocente && (
+                  <React.Fragment>
+                    <Button
+                      icon='pi pi-pencil'
+                      className='p-button-sm  p-button-info'
+                      onClick={router.goTo(`/tareas/form?id=${rowData.id}`)}
+                    />
+                  </React.Fragment>
+                )}
+              </React.Fragment>
+            )}
           />
         </DataTable>
       </div>

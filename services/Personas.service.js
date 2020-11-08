@@ -1,9 +1,9 @@
 import { gql } from "@apollo/client";
 
 export class Estudiante {
-  static getEstudiantes = gql`
-    query getEstudiantes {
-      estudiantes {
+  static getAlumnos = gql`
+    query getAlumnos {
+      alumnos {
         id
         persona {
           id

@@ -1,8 +1,8 @@
 import CardInfoUsuario from "@components/dashboard/cardInfoUsuario";
+import MensajesSinLeerTable from "@components/dashboard/mensajesSinLeerTable";
+import TareasPendientesTable from "@components/dashboard/tareasPendientesTable";
 import PrivateLayout from "@layouts/privateLayout";
 import React from "react";
-import TareasPendientesTable from "@components/dashboard/tareasPendientesTable";
-import MensajesSinLeerTable from "@components/dashboard/mensajesSinLeerTable";
 
 const DashboardContainer = () => {
   return (

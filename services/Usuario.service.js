@@ -1,7 +1,11 @@
 import { gql } from "@apollo/client";
+import Axios from "./Axios";
 
 export class Usuario {
   static STORAGE_USU_KEY = "usuarioMLN";
+
+  static DOCENTE = "DOCENTE";
+  static ALUMNO = "ALUMNO";
 
   static login = gql`
     mutation login($username: String!, $password: String!) {
@@ -13,6 +17,10 @@ export class Usuario {
         user {
           id
           username
+          grupos {
+            id
+            nombre
+          }
           persona {
             id
             identificacion
@@ -22,19 +30,34 @@ export class Usuario {
             telefono
             celular
             fechaNacimiento
-            representados {
-              createdAt
-              observaciones
-              relacionRepresentante
-              persona {
-                id
-                str
+            alumno {
+              id
+              padre {
+                identificacion
+                primerNombre
+                segundoNombre
+                primerApellido
+                segundoApellido
+                telefono
               }
+              madre {
+                identificacion
+                primerNombre
+                segundoNombre
+                primerApellido
+                segundoApellido
+                telefono
+              }
+              representante {
+                identificacion
+                primerNombre
+                segundoNombre
+                primerApellido
+                segundoApellido
+                telefono
+              }
+              observaciones
             }
-          }
-          grupos {
-            id
-            nombre
           }
         }
       }
@@ -87,5 +110,22 @@ export class Usuario {
   };
   static isRepresentante = () => {
     return this.getUsuarioStorage().grupoStr === "REPRESENTANTE";
+  };
+
+  static getMisAlumnos = async () => {
+    const usu = this.getMappedUsuario();
+    return await Axios.get(`mis-alumnos/${usu.persona.identificacion}`);
+  };
+
+  static getInfoUsuario = async () => {
+    const usuario = this.getMappedUsuario();
+    const body = {
+      identificacion: usuario.persona.identificacion,
+    };
+    const { status, data } = await Axios.post("get-info-usuario", body);
+
+    if (status === 200 && data?.transaccion) {
+      return data?.data;
+    }
   };
 }

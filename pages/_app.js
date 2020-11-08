@@ -1,6 +1,7 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import "@assets/css/global.scss";
-import "bootstrap/dist/css/bootstrap.min.css";
+//import "bootstrap/dist/css/bootstrap.min.css";
+import "bootswatch/dist/lux/bootstrap.min.css";
 import "jquery";
 import moment from "moment";
 import "moment/locale/es";
@@ -9,9 +10,11 @@ import "primeflex/primeflex.css";
 import "primeicons/primeicons.css";
 import "primereact/resources/primereact.min.css";
 //import "primereact/resources/themes/nova-light/theme.css";
+//import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 import { ToastProvider } from "react-toast-notifications";
 import "suneditor/dist/css/suneditor.min.css"; // Import Sun Editor's CSS File
+import { UsuarioProvider } from "context/UsuarioContext";
 moment.locale("es");
 
 const client = new ApolloClient({
@@ -20,14 +23,23 @@ const client = new ApolloClient({
   defaultOptions: {
     watchQuery: {
       fetchPolicy: "no-cache",
-      errorPolicy: "ignore",
     },
     query: {
       fetchPolicy: "no-cache",
     },
   },
 });
+/*
+const beamsClient = new PusherPushNotifications.Client({
+  instanceId: "d3bbc811-68b5-4794-b83a-748c78115a66",
+});
 
+beamsClient
+  .start()
+  .then(() => beamsClient.addDeviceInterest("hello"))
+  .then(() => console.log("Successfully registered and subscribed!"))
+  .catch(console.error);
+*/
 export default function MyApp({ Component, pageProps }) {
   return (
     <ToastProvider
@@ -35,7 +47,9 @@ export default function MyApp({ Component, pageProps }) {
       autoDismissTimeout={6000}
       placement='bottom-right'>
       <ApolloProvider client={client}>
-        <Component {...{ ...pageProps }} />
+        <UsuarioProvider>
+          <Component {...{ ...pageProps }} />
+        </UsuarioProvider>
       </ApolloProvider>
     </ToastProvider>
   );

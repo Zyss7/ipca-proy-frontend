@@ -1,48 +1,63 @@
-import { useQuery } from "@apollo/client";
 import PrivateLayout from "@layouts/privateLayout";
-import { Estudiante } from "@services/Personas.service";
 import { Tarea } from "@services/Tareas.service";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import React, { useEffect, useState } from "react";
-import { Checkbox } from "primereact/checkbox";
+import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
 import { useRouter } from "next/router";
 import { Button } from "primereact/button";
+import { Checkbox } from "primereact/checkbox";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import React, { useCallback, useEffect, useState } from "react";
 import { useToasts } from "react-toast-notifications";
 
 const EnviarTareaContainer = ({ id }) => {
   const [tarea, setTarea] = useState({});
 
-  const [estudiantes, setEstudiantes] = useState([]);
-
+  const [alumnos, setAlumnos] = useState([]);
+  const [usuario] = useUsuario();
+  const [isUsuarioLoading] = useUsuarioIsLoading();
   const { addToast } = useToasts();
 
   const router = useRouter();
 
-  const [cargando, setCargando] = useState(true);
+  const init = useCallback(() => {
+    if (!isUsuarioLoading) {
+      Tarea.getById(id).then((res) => {
+        setTarea(res);
 
-  const { loading } = useQuery(Estudiante.getEstudiantes, {
-    onCompleted: async ({ estudiantes: items }) => {
-      console.log(items);
-      const resTarea = await Tarea.getById(id);
-      setTarea(resTarea);
-      setCargando(false);
-      if (resTarea.estudiantes && resTarea.estudiantes.length > 0) {
-        resTarea.estudiantes.forEach((e) => {
-          const item = items.find((obj) => obj.id === e.id);
-          item.enviar = true;
-        });
-      }
-      setEstudiantes(items.map((e) => ({ ...e })));
-    },
-  });
+        const alumnosTemp = usuario.aulas
+          .map((aula) =>
+            aula.alumnos.map((alumno) => {
+              const alumnoTarea = res?.alumnos?.find((a) => a.id === alumno.id);
+              return {
+                ...alumno,
+                enviar: alumnoTarea && true,
+                idAula: aula.id,
+                aula: aula.nombre,
+              };
+            })
+          )
+          .flat();
+
+        setAlumnos(alumnosTemp);
+      });
+    }
+  }, [isUsuarioLoading]);
+
+  useEffect(() => {
+    if (id) {
+      init();
+    } else {
+      router.replace("/tareas");
+    }
+  }, [init, isUsuarioLoading]);
 
   const onCheck = (rowData) => ({ checked }) => {
-    const estudiante = estudiantes.find((e) => e.id === rowData.id);
-    const index = estudiantes.indexOf(estudiante);
-    estudiante.enviar = checked;
-    estudiantes[index] = estudiante;
-    setEstudiantes([...estudiantes]);
+    setAlumnos(
+      alumnos.map((a) => ({
+        ...a,
+        enviar: rowData.id === a.id ? checked : a.enviar,
+      }))
+    );
   };
 
   const onClickAtras = () => {
@@ -50,20 +65,20 @@ const EnviarTareaContainer = ({ id }) => {
   };
 
   const onClickEnviar = async () => {
-    const estudiantesTemp = estudiantes.filter((e) => e.enviar === true);
+    const alumnosEnviar = alumnos.filter((a) => a.enviar === true);
 
-    if (estudiantesTemp.length === 0) {
+    if (alumnosEnviar.length === 0) {
       return addToast("DEBE SELECCIONAR AL MENOS UN ALUMNO", {
         appearance: "error",
       });
     }
 
-    tarea.estudiantes = estudiantesTemp;
-    tarea.estadoEnvio = "E";
-    console.log("ESTUDIANTES: ", tarea);
-    const response = await Tarea.update(id, tarea);
-    console.log(response.data?.estudiantes);
-    //router.push("/tareas");
+    tarea.alumnos = alumnosEnviar;
+
+    tarea.estadoEnvio = "ENVIADO";
+
+    await Tarea.update(id, tarea);
+    router.push("/tareas");
   };
 
   return (
@@ -71,11 +86,12 @@ const EnviarTareaContainer = ({ id }) => {
       <main className='container-fluid'>
         <h1 className='text-center my-5'>Tarea: {tarea?.titulo}</h1>
         <div className='row justify-content-center'>
-          <div className='col-md-8'>
+          <div className='col-md-10 col-lg-9 col-xl-8'>
             <h1>Seleccione a los alumnos</h1>
+
             <DataTable
               className='p-datatable-gridlines'
-              value={estudiantes}
+              value={alumnos}
               className='p-datatable-gridlines shadow-lg'
               rowHover
               paginator
@@ -89,7 +105,8 @@ const EnviarTareaContainer = ({ id }) => {
                 style={{ width: "50px" }}
                 body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
               />
-              <Column header='Estudiante' field='persona.str' filter sortable />
+              <Column header='Estudiante' field='str' filter sortable />
+              <Column header='Aula' field='aula' filter sortable />
 
               <Column
                 style={{ width: "100px" }}

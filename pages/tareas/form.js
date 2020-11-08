@@ -1,22 +1,23 @@
-import { CustomTextEditor } from "../../components/exports/index";
 import CustomDateTimePicker from "@components/Inputs/CustomDateTimePicker";
 import PrivateLayout from "@layouts/privateLayout";
 import { Tarea } from "@services/Tareas.service";
+import { useSpeak } from "hooks/useSpeak";
+import { route } from "next/dist/next-server/server/router";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { FormProvider, useForm } from "react-hook-form";
-
-import dynamic from "next/dynamic";
-
-const TestEditor = dynamic(() => import("../"), {
-  ssr: false,
-});
+import { useToasts } from "react-toast-notifications";
+import { CustomTextEditor } from "../../components/exports/index";
 
 const FormTareaContainer = ({ id }) => {
   const methods = useForm({ mode: "onChange" });
+
   const { register, errors, handleSubmit } = methods;
+  const { addToast } = useToasts();
+
+  const { speak, isSpeaking, stopSpeak } = useSpeak();
 
   const router = useRouter();
 
@@ -26,18 +27,16 @@ const FormTareaContainer = ({ id }) => {
       Tarea.getById(id).then((res) => {
         methods.reset(res);
       });
+    } else {
+      router.replace("/tareas");
     }
   }, []);
 
   const onGuardar = async (data) => {
     console.log(data);
-
-    if (!data.estadoEnvio) {
-      data.estadoEnvio = "G";
-    }
+    data.estadoEnvio = "PENDIENTE";
 
     if (id) {
-      console.log("EXISTE");
       await Tarea.update(id, data);
     } else {
       const res = await Tarea.save(data);
@@ -55,6 +54,16 @@ const FormTareaContainer = ({ id }) => {
     console.log("ERROR");
   };
 
+  const onClickEscuchar = () => {
+    const descripcionHablada = methods.getValues("descripcionHablada");
+    if (!descripcionHablada) {
+      return addToast("NO HA INGRESADO NINGUNA DESCRIPCION!", {
+        appearance: "warning",
+      });
+    }
+    speak(descripcionHablada);
+  };
+
   return (
     <PrivateLayout>
       <FormProvider {...methods}>
@@ -62,7 +71,7 @@ const FormTareaContainer = ({ id }) => {
           <h1 className='display-4 text-center my-5'>Crea y edita una tarea</h1>
 
           <div className='row justify-content-center'>
-            <div className='col-md-8 col-lg-10'>
+            <div className='col-lg-10'>
               <form>
                 <div className='form-row'>
                   <div className='col-lg-6'>
@@ -87,21 +96,63 @@ const FormTareaContainer = ({ id }) => {
                       label='Fecha de Entrega'
                     />
                   </div>
+
+                  <div className='col-12'>
+                    <CustomTextEditor
+                      label='Descripcion:'
+                      name='descripcion'
+                      rules={{
+                        required: "Este campo es Obligatorio",
+                      }}
+                    />
+                  </div>
+
+                  <div className='col-lg-12'></div>
+
+                  <div className='col-12'>
+                    <Form.Group>
+                      <Form.Label>
+                        Descripción hablada:
+                        <Button
+                          className='ml-1 rounded font-weight-bold'
+                          size='sm'
+                          type='button'
+                          onClick={onClickEscuchar}>
+                          <i className='pi pi-volume-up' />
+                        </Button>
+                        {isSpeaking && (
+                          <Button
+                            className='ml-1 rounded font-weight-bold'
+                            size='sm'
+                            type='button'
+                            variant='danger'
+                            onClick={stopSpeak}>
+                            <i className='pi pi-pause' />
+                          </Button>
+                        )}
+                      </Form.Label>
+                      <Form.Control
+                        as='textarea'
+                        name='descripcionHablada'
+                        rows={7}
+                        isInvalid={!!errors.titulo}
+                        ref={register({
+                          required: "Este campo es Obligatorio",
+                        })}
+                      />
+                      <Form.Control.Feedback type='invalid'>
+                        <p className='text-danger'>
+                          {errors?.descripcionHablada?.message}
+                        </p>
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </div>
                 </div>
 
-                <CustomTextEditor
-                  label='Descripcion:'
-                  name='descripcion'
-                  rules={{
-                    required: "Este campo es Obligatorio",
-                  }}
-                />
                 <Row className='justify-content-around mb-5'>
                   <div className='col-md-3'>
                     <Link href='/tareas'>
-                      <a className='btn btn-sm btn-block btn-danger'>
-                        Cancelar
-                      </a>
+                      <a className='btn btn-block btn-danger'>Cancelar</a>
                     </Link>
                   </div>
                   <div className='col-md-3'>
@@ -109,7 +160,6 @@ const FormTareaContainer = ({ id }) => {
                       variant='success'
                       type='button'
                       block
-                      size='sm'
                       onClick={handleSubmit(onGuardar, onSubmitError)}>
                       Guardar
                     </Button>
@@ -119,7 +169,6 @@ const FormTareaContainer = ({ id }) => {
                       variant='info'
                       type='submit'
                       block
-                      size='sm'
                       onClick={handleSubmit(onEnviar, onSubmitError)}>
                       Enviar
                     </Button>

@@ -63,6 +63,10 @@ const Login = () => {
           });
         }
       }
+    } else {
+      addToast("POR FAVOR VERIFICA TUS CREDENCIALES", {
+        appearance: "error",
+      });
     }
 
     setLoading(false);
