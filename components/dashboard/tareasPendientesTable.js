@@ -58,7 +58,9 @@ const TareasPendientesTable = () => {
           />
 
           <Column header='Tarea' field='titulo' />
-          {usuario?.isAlumno && <Column header='Docente' field='docente.str' />}
+          {usuario?.isAlumno && (
+            <Column header='Docente' field='docente.str' sortable filter />
+          )}
 
           {usuario?.isDocente && (
             <Column

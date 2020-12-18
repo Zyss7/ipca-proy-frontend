@@ -15,6 +15,8 @@ import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 import { ToastProvider } from "react-toast-notifications";
 import "suneditor/dist/css/suneditor.min.css"; // Import Sun Editor's CSS File
 import { UsuarioProvider } from "context/UsuarioContext";
+import { enableRipple } from "@syncfusion/ej2-base";
+enableRipple(true);
 moment.locale("es");
 
 const client = new ApolloClient({
