@@ -37,10 +37,6 @@ const PrivateLayout = ({ children, title }) => {
     <React.Fragment>
       <Head>
         <title>{title || "MyLittleApp"}</title>
-        <link
-          href='https://cdn.syncfusion.com/ej2/material.css'
-          rel='stylesheet'
-        />
       </Head>
       <LoadingWrapper loading={isLoading}>
         <PrivateNavbar />

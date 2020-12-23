@@ -15,12 +15,12 @@ import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 import { ToastProvider } from "react-toast-notifications";
 import "suneditor/dist/css/suneditor.min.css"; // Import Sun Editor's CSS File
 import { UsuarioProvider } from "context/UsuarioContext";
-import { enableRipple } from "@syncfusion/ej2-base";
-enableRipple(true);
+
 moment.locale("es");
 
 const client = new ApolloClient({
   uri: "https://straw-berry-py.herokuapp.com/graphql",
+  //uri: "http://localhost:9000/graphql",
   cache: new InMemoryCache({ addTypename: false }),
   defaultOptions: {
     watchQuery: {

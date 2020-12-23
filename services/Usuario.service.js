@@ -28,7 +28,7 @@ export class Usuario {
             str
             correo
             telefono
-            celular
+            celularUno
             fechaNacimiento
             alumno {
               id

@@ -357,7 +357,7 @@ const ModalVideo = ({ video }) => {
     <React.Fragment>
       <PrimeButton
         icon='pi pi-video'
-        className='p-button-sm rounded-0 p-button-warning'
+        className='p-button-sm rounded-0 p-button-warning '
         type='button'
         onClick={onHide}
       />
