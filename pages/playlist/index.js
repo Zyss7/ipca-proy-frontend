@@ -1,32 +1,36 @@
 import LoadingWrapper from "@components/Loadings/LoadingWrapper";
-import PlaylistTable from "@components/playlist/playlistTable";
+import PlaylistAdmin from "@components/playlist/PlaylistAdmin";
+import PlaylistAlumno from "@components/playlist/PlaylistAlumno";
 import PrivateLayout from "@layouts/privateLayout";
-import Link from "next/link";
-import React, { useState } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useUsuario } from "context/UsuarioContext";
+import usePlayList from "hooks/usePlayList";
+import React, { useEffect, useState } from "react";
 
 const PlaylistContainer = () => {
   const [cargando, setCargando] = useState(false);
+  const [data, setData] = useState([]);
+  const [showList, setShowList] = useState(false);
+  const { getListasTable } = usePlayList();
+  const [usuario] = useUsuario();
+
+  useEffect(() => {
+    setCargando(true);
+    getListasTable().then((res) => {
+      if (res?.transaccion) {
+        setData(res?.data);
+      }
+      setCargando(false);
+    });
+  }, []);
+
   return (
     <PrivateLayout>
       <LoadingWrapper loading={cargando}>
-        <main className="container-fluid">
-          <h1 className="text-center display-4 my-5">
-            Playlists
-            <Link href="/playlist/form">
-              <a>
-                <AiOutlinePlusCircle color="green" className="pointer" />
-              </a>
-            </Link>
-          </h1>
-          {!cargando && (
-            <div className="row justify-content-center">
-              <div className="col-lg-11 align-self-center ">
-                <PlaylistTable />
-              </div>
-            </div>
-          )}
-        </main>
+        {usuario?.isDocente && (
+          <button onClick={() => setShowList(!showList)}>Ver demo</button>
+        )}
+        {!showList && usuario?.isDocente && <PlaylistAdmin data={data} />}
+        {(showList || usuario?.isAlumno) && <PlaylistAlumno data={data} />}
       </LoadingWrapper>
     </PrivateLayout>
   );

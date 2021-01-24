@@ -1,55 +1,48 @@
+import CustomErrorMessage from "@components/ErrorMessage";
+import LoadingWrapper from "@components/Loadings/LoadingWrapper";
+import { DevTool } from "@hookform/devtools";
 import PrivateLayout from "@layouts/privateLayout";
+import { youtubeVideoRegex } from "@utils/validaciones";
+import classnames from "classnames";
+import useCustomRouter from "hooks/useCustomRouter";
+import usePlayList from "hooks/usePlayList";
+import useQueryString from "hooks/useQueryString";
+import _ from "lodash";
 import Link from "next/link";
+import { Button as PrimeButton } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React, { useEffect, useState } from "react";
 import { Button, Form, Modal, Row } from "react-bootstrap";
-import { FormProvider, useForm } from "react-hook-form";
-import { Button as PrimeButton } from "primereact/button";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import uuid from "uuid";
-import _ from "lodash";
-import { youtubeVideoRegex } from "@utils/validaciones";
-import YouTube from "react-youtube";
-
-const testData = [
-  {
-    id: uuid.v4(),
-    orden: 1,
-    titulo: "Prueba",
-    url: "https://www.youtube.com/watch?v=V6tP9GyQR5M",
-    descripcion: "asdfljasdfjk",
-  },
-  {
-    id: uuid.v4(),
-    orden: 2,
-    titulo: "Prueba2",
-    url: "https://www.youtube.com/watch?v=V6tP9GyQR5M",
-    descripcion: "asdfljasdfjk",
-  },
-  {
-    id: uuid.v4(),
-    orden: 3,
-    titulo: "Prueba3",
-    url: "kqJHjpb59OI",
-    descripcion: "asdfljasdfjk",
-  },
-];
 
 const mappVideos = (videos = []) => {
   return _.orderBy(videos, ["orden"]);
 };
-const FormPlaylistContainer = () => {
-  const methods = useForm({ mode: "onChange" });
-  const { register, errors, handleSubmit } = methods;
 
-  const [videos, setVideos] = useState(testData);
+const FormPlaylistContainer = ({ id }) => {
+  const methods = useForm({
+    mode: "onChange",
+  });
+  const [loading, setLoading] = useState(true);
+  const { register, errors, handleSubmit, reset } = methods;
+
+  const { crear, getById, editarById } = usePlayList();
+  const router = useCustomRouter();
 
   useEffect(() => {
-    console.log(videos);
-  }, [videos]);
+    if (id) {
+      return getById(id).then((res) => {
+        reset(res?.data);
+        setLoading(false);
+      });
+    }
+    setLoading(false);
+  }, []);
 
-  const onReorder = ({ value }) => {
-    setVideos(
+  const onReorder = (setter) => ({ value }) => {
+    setter(
       value.map((video, index) => {
         video.orden = index;
         return video;
@@ -57,149 +50,181 @@ const FormPlaylistContainer = () => {
     );
   };
 
-  const header = (
+  const header = (value, setter) => (
     <React.Fragment>
       <div className='d-flex flex-row'>
-        <FormVideo videos={videos} setVideos={setVideos} isAdd />
+        <FormVideo videos={value} setVideos={setter} isAdd />
       </div>
     </React.Fragment>
   );
 
+  const onSubmit = async (data) => {
+    setLoading(true);
+    if (!id) {
+      await crear(data);
+    } else {
+      await editarById(id, data);
+    }
+    setLoading(false);
+    return router.push("/playlist");
+  };
+
   return (
     <PrivateLayout>
-      <main className='container-fluid'>
-        <FormProvider {...methods}>
-          <h1 className='display-4 text-center my-5'>
-            Crea y edita una playlist
-          </h1>
-          <div className='row justify-content-center'>
-            <div className='col-lg-10'>
-              <form>
-                <div className='form-row'>
-                  <div className='col-lg-6'>
-                    <Form.Group>
-                      <Form.Label>Titulo de la playlist:</Form.Label>
-                      <Form.Control
-                        name='titulo'
-                        isInvalid={!!errors.titulo}
-                        ref={register({
-                          required: "Este campo es Obligatorio",
-                        })}
-                      />
-                      <Form.Control.Feedback type='invalid'>
-                        <p className='text-danger'>{errors?.titulo?.message}</p>
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </div>
-                  <div className='col-12'>
-                    <Form.Group>
-                      <Form.Label>Descripción:</Form.Label>
-                      <Form.Control
-                        as='textarea'
-                        name='descripcion'
-                        rows={7}
-                        isInvalid={!!errors.titulo}
-                        ref={register({
-                          required: "Este campo es Obligatorio",
-                        })}
-                      />
-                      <Form.Control.Feedback type='invalid'>
-                        <p className='text-danger'>
-                          {errors?.descripcionHablada?.message}
-                        </p>
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </div>
-                </div>
-
-                <div className='form-group'>
-                  <DataTable
-                    className='p-datatable-gridlines p-datatable-sm border border-secondary'
-                    value={videos}
-                    header={header}
-                    reorderableColumns
-                    onRowReorder={onReorder}
-                    emptyMessage={
-                      <div className='text-center my-3'>
-                        <strong>No hay videos Agregados</strong>
-                        <br />
-                        <strong>
-                          Pulse en el boton Agregar para añadir un nuevo video a
-                          la lista
-                        </strong>
-                      </div>
-                    }
-                    autoLayout>
-                    <Column
-                      rowReorder
-                      style={{ width: "3em", textAlign: "center" }}
-                    />
-                    <Column field='titulo' header='Titulo' />
-                    <Column field='descripcion' header='Descripcion' />
-                    <Column
-                      style={{ width: "70px" }}
-                      header='Video'
-                      headerClassName='text-center'
-                      bodyClassName='text-center'
-                      body={(data) => <ModalVideo video={data} />}
-                    />
-                    <Column
-                      style={{ width: "70px" }}
-                      header='Editar'
-                      headerClassName='text-center'
-                      bodyClassName='text-center'
-                      body={(data) => (
-                        <FormVideo
-                          labelBtn=''
-                          icon='pi pi-pencil'
-                          className='p-button-info'
-                          formData={data}
-                          isEdit
-                          videos={videos}
-                          setVideos={setVideos}
+      <LoadingWrapper loading={loading}>
+        <main className='container-fluid'>
+          <DevTool control={methods.control} />
+          <FormProvider {...methods}>
+            <h1 className='display-4 text-center my-5'>
+              Crea y edita una playlist
+            </h1>
+            <div className='row justify-content-center'>
+              <div className='col-lg-10'>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className='form-row'>
+                    <div className='col-lg-6'>
+                      <Form.Group>
+                        <Form.Label>Titulo de la playlist:</Form.Label>
+                        <Form.Control
+                          name='titulo'
+                          isInvalid={!!errors.titulo}
+                          ref={register({
+                            required: "Este campo es Obligatorio",
+                          })}
                         />
+
+                        <CustomErrorMessage name='titulo' />
+                      </Form.Group>
+                    </div>
+                    <div className='col-12'>
+                      <Form.Group>
+                        <Form.Label>Descripción:</Form.Label>
+                        <Form.Control
+                          as='textarea'
+                          name='descripcion'
+                          rows={7}
+                          isInvalid={!!errors?.descripcion}
+                          ref={register({
+                            required: "Este campo es Obligatorio",
+                          })}
+                        />
+
+                        <CustomErrorMessage name='descripcion' />
+                      </Form.Group>
+                    </div>
+                  </div>
+
+                  <div className='form-group'>
+                    <CustomErrorMessage name='videos' />
+                    <Controller
+                      name='videos'
+                      defaultValue={[]}
+                      control={methods.control}
+                      rules={{
+                        validate: (value) => {
+                          if (value.length === 0) {
+                            return "Debe ingresar mínimo un video";
+                          }
+
+                          return true;
+                        },
+                      }}
+                      render={({ value, onChange }, { invalid }) => (
+                        <DataTable
+                          className={classnames({
+                            "p-datatable-gridlines p-datatable-sm border": true,
+                            "border-secondary": !invalid,
+                            "border-danger": invalid,
+                          })}
+                          value={value}
+                          header={header(value, onChange)}
+                          reorderableColumns
+                          onRowReorder={onReorder(onChange)}
+                          emptyMessage={
+                            <div className='text-center my-3'>
+                              <strong>No hay videos Agregados</strong>
+                              <br />
+                              <strong>
+                                Pulse en el boton Agregar para añadir un nuevo
+                                video a la lista
+                              </strong>
+                            </div>
+                          }
+                          autoLayout>
+                          <Column
+                            rowReorder
+                            style={{ width: "3em", textAlign: "center" }}
+                          />
+                          <Column field='titulo' header='Titulo' />
+                          <Column field='descripcion' header='Descripcion' />
+                          <Column
+                            style={{ width: "70px" }}
+                            header='Video'
+                            headerClassName='text-center'
+                            bodyClassName='text-center'
+                            body={(data) => <ModalVideo video={data} />}
+                          />
+                          <Column
+                            style={{ width: "70px" }}
+                            header='Editar'
+                            headerClassName='text-center'
+                            bodyClassName='text-center'
+                            body={(data) => (
+                              <FormVideo
+                                labelBtn=''
+                                icon='pi pi-pencil'
+                                className='p-button-info'
+                                formData={data}
+                                isEdit
+                                videos={value}
+                                setVideos={onChange}
+                              />
+                            )}
+                          />
+                          <Column
+                            style={{ width: "70px" }}
+                            headerClassName='text-center'
+                            bodyClassName='text-center'
+                            header='Eliminar'
+                            body={(data) => (
+                              <FormVideo
+                                labelBtn=''
+                                icon='pi pi-trash'
+                                className='p-button-danger'
+                                formData={data}
+                                isDelete
+                                videos={value}
+                                setVideos={onChange}
+                              />
+                            )}
+                          />
+                        </DataTable>
                       )}
                     />
-                    <Column
-                      style={{ width: "70px" }}
-                      headerClassName='text-center'
-                      bodyClassName='text-center'
-                      header='Eliminar'
-                      body={(data) => (
-                        <FormVideo
-                          labelBtn=''
-                          icon='pi pi-trash'
-                          className='p-button-danger'
-                          formData={data}
-                          isDelete
-                          videos={videos}
-                          setVideos={setVideos}
-                        />
-                      )}
-                    />
-                  </DataTable>
-                </div>
+                  </div>
 
-                <Row className='justify-content-around mb-5'>
-                  <div className='col-md-3'>
-                    <Link href='/playlist'>
-                      <a className='btn btn-block btn-danger'>Cancelar</a>
-                    </Link>
-                  </div>
-                  <div className='col-md-3'>
-                    <Button variant='success' type='button' block>
-                      Guardar
-                    </Button>
-                  </div>
-                </Row>
-              </form>
+                  <Row className='justify-content-around mb-5'>
+                    <div className='col-md-3'>
+                      <Link href='/playlist'>
+                        <a className='btn btn-block btn-danger'>Cancelar</a>
+                      </Link>
+                    </div>
+                    <div className='col-md-3'>
+                      <Button variant='success' type='submit' block>
+                        Guardar
+                      </Button>
+                    </div>
+                  </Row>
+                </form>
+              </div>
             </div>
-          </div>
-        </FormProvider>
-      </main>
+          </FormProvider>
+        </main>
+      </LoadingWrapper>
     </PrivateLayout>
   );
 };
+
 FormPlaylistContainer.getInitialProps = ({ query }) => {
   return { ...query };
 };
@@ -218,7 +243,8 @@ const FormVideo = ({
 }) => {
   const methods = useForm({ mode: "onChange" });
   const [show, setShow] = useState(false);
-  const { register, errors, handleSubmit } = methods;
+  const { register, errors, handleSubmit, reset } = methods;
+  const { getParam } = useQueryString();
 
   useEffect(() => {
     if (formData) {
@@ -237,13 +263,18 @@ const FormVideo = ({
       data.id = uuid.v4();
       data.orden = videos.length;
     }
-
+    const v = getParam("v", data?.url);
     if (!isDelete) {
-      videos.push({ ...formData, ...data });
+      videos.push({
+        ...formData,
+        ...data,
+        v,
+        iframeUrl: `https://www.youtube.com/embed/${v}`,
+      });
     }
 
     setVideos(mappVideos(videos));
-
+    reset();
     onClick();
   };
 
@@ -332,13 +363,26 @@ const FormVideo = ({
             </form>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={onClick}>Cerrar</Button>
-            <Button
-              type='submit'
-              variant={isDelete ? "danger" : "success"}
-              onClick={handleSubmit(onSubmit)}>
-              {isDelete ? "Eliminar" : "Guardar"}
+            <Button onClick={onClick} type='button'>
+              Cerrar
             </Button>
+
+            {isDelete && (
+              <Button
+                type='button'
+                variant='danger'
+                onClick={() => onSubmit(formData)}>
+                Eliminar
+              </Button>
+            )}
+            {!isDelete && (
+              <Button
+                type='submit'
+                variant='success'
+                onClick={handleSubmit(onSubmit)}>
+                Guardar
+              </Button>
+            )}
           </Modal.Footer>
         </Modal>
       </FormProvider>
@@ -349,9 +393,7 @@ const FormVideo = ({
 const ModalVideo = ({ video }) => {
   const [show, setShow] = useState(false);
 
-  const onHide = () => {
-    setShow(!show);
-  };
+  const onHide = () => setShow(!show);
 
   return (
     <React.Fragment>
@@ -363,29 +405,24 @@ const ModalVideo = ({ video }) => {
       />
       <Modal
         show={show}
-        size='lg'
+        size='xl'
         aria-labelledby='contained-modal-title-vcenter'
         onHide={onHide}
         centered>
         <Modal.Header closeButton>
-          <Modal.Title id='contained-modal-title-vcenter'></Modal.Title>
+          <Modal.Title id='contained-modal-title-vcenter'>
+            {video?.titulo}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <YouTube
-            className='text-center'
-            videoId={video.url} // defaults -> null
-            //id={string} // defaults -> null
-            //className={string} // defaults -> null
-            //containerClassName={string} // defaults -> ''
-            //opts={obj} // defaults -> {}
-            //onReady={func} // defaults -> noop
-            //onPlay={func} // defaults -> noop
-            //onPause={func} // defaults -> noop
-            //onEnd={func} // defaults -> noop
-            //onError={func} // defaults -> noop
-            //onStateChange={func} // defaults -> noop
-            //onPlaybackRateChange={func} // defaults -> noop
-            //onPlaybackQualityChange={func} // defaults -> noop
+          <iframe
+            width='560'
+            height='450'
+            className='w-100'
+            src={video?.iframeUrl}
+            frameBorder='0'
+            allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+            allowFullScreen
           />
         </Modal.Body>
         <Modal.Footer>

@@ -2,14 +2,14 @@ import LoadingWrapper from "@components/Loadings/LoadingWrapper";
 import styled from "@emotion/styled";
 import PrivateLayout from "@layouts/privateLayout";
 import { Comentario } from "@services/Comentarios.service";
-import { Tarea } from "@services/Tareas.service";
 import classnames from "classnames";
-import { useUsuario } from "context/UsuarioContext";
+import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
+import useTareas from "hooks/useTareas";
+import _ from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import _ from "lodash";
 
 const DetalleTareaContainer = ({ id }) => {
   const [tarea, setTarea] = useState({});
@@ -17,30 +17,34 @@ const DetalleTareaContainer = ({ id }) => {
   const [usuario] = useUsuario();
   const [showDescripcion, setShowDescripcion] = useState(true);
   const [comentarios, setComentarios] = useState([]);
-
+  const [isUsuarioLoading] = useUsuarioIsLoading();
   const { register, errors, handleSubmit, reset } = useForm({
     mode: "onChange",
   });
 
-  useEffect(() => {
-    setLoading(true);
-    Tarea.getById(id).then((res) => {
-      setTarea(res);
-      setLoading(false);
-    });
+  const { getTareaById, changeEstado } = useTareas();
 
-    Comentario.getAll(id, (payload) => {
-      const newPayload = _.orderBy(
-        payload.map((c) => ({
-          ...c,
-          fecha: moment(c.createdAt).fromNow(),
-        })),
-        ["createdAt"],
-        ["desc"]
-      );
-      setComentarios(newPayload);
-    });
-  }, []);
+  useEffect(() => {
+    if (!isUsuarioLoading) {
+      setLoading(true);
+      getTareaById(id).then((res) => {
+        setTarea(res);
+        setLoading(false);
+      });
+
+      Comentario.getAll(id, (payload) => {
+        const newPayload = _.orderBy(
+          payload.map((c) => ({
+            ...c,
+            fecha: moment(c.createdAt).fromNow(),
+          })),
+          ["createdAt"],
+          ["desc"]
+        );
+        setComentarios(newPayload);
+      });
+    }
+  }, [isUsuarioLoading]);
 
   const addComentario = async (data) => {
     await Comentario.addComentario({
@@ -64,6 +68,10 @@ const DetalleTareaContainer = ({ id }) => {
     await Comentario.delete(idDoc);
   };
 
+  const onChangeEstado = async ({ target }) => {
+    await changeEstado(id, tarea, target.value);
+  };
+
   return (
     <PrivateLayout>
       <LoadingWrapper loading={loading}>
@@ -82,7 +90,24 @@ const DetalleTareaContainer = ({ id }) => {
                       <li key={index}>{alumno.str}</li>
                     ))}
                   </ol>
-                  <h4 className='my-3'>Estado: {tarea.estadoEnvio}</h4>
+                  {usuario?.isDocente && (
+                    <h4 className='my-3'>Estado: {tarea.estadoEnvio}</h4>
+                  )}
+
+                  {usuario?.isAlumno && (
+                    <React.Fragment>
+                      <div className='d-inline-flex'>
+                        <h4 className='my-3'>Estado: </h4>
+                        <select
+                          className='form-control my-3 ml-1'
+                          defaultValue={tarea?.estado}
+                          onChange={onChangeEstado}>
+                          <option value='PENDIENTE'>PENDIENTE</option>
+                          <option value='FINALIZADO'>FINALIZADO</option>
+                        </select>
+                      </div>
+                    </React.Fragment>
+                  )}
                 </div>
                 <div className='col-12'>
                   <button
@@ -106,7 +131,7 @@ const DetalleTareaContainer = ({ id }) => {
                   <h3>Comentarios:</h3>
                 </div>
 
-                <div className='col-11'>
+                <div className='col-12 col-md-11'>
                   <form onSubmit={handleSubmit(addComentario)}>
                     <Form.Control
                       as='textarea'
@@ -126,7 +151,7 @@ const DetalleTareaContainer = ({ id }) => {
                       </button>
                     </div>
                   </form>
-                  <ul className='list-group '>
+                  <ul className='list-group'>
                     {comentarios.map((comentario, index) => (
                       <li
                         className={classnames({
@@ -137,7 +162,10 @@ const DetalleTareaContainer = ({ id }) => {
                         })}
                         key={comentario.id}>
                         <UsuarioMsg>
-                          {comentario?.usuario?.str}({comentario.usuario.rol})
+                          {comentario?.usuario?.str}
+                          <span className='text-info ml-1'>
+                            ({comentario.usuario.rol})
+                          </span>
                           {comentario?.usuario?.id ===
                             usuario?.persona?.identificacion && (
                             <BtnEliminarMsg

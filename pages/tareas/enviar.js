@@ -1,7 +1,7 @@
 import PrivateLayout from "@layouts/privateLayout";
 import { Tarea } from "@services/Tareas.service";
 import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
-import { useRouter } from "next/router";
+import useCustomRouter from "hooks/useCustomRouter";
 import { Button } from "primereact/button";
 import { Checkbox } from "primereact/checkbox";
 import { Column } from "primereact/column";
@@ -15,12 +15,14 @@ const EnviarTareaContainer = ({ id }) => {
   const [alumnos, setAlumnos] = useState([]);
   const [usuario] = useUsuario();
   const [isUsuarioLoading] = useUsuarioIsLoading();
+  const [isLoading, setLoading] = useState(false);
   const { addToast } = useToasts();
 
-  const router = useRouter();
+  const router = useCustomRouter();
 
   const init = useCallback(() => {
     if (!isUsuarioLoading) {
+      setLoading(true);
       Tarea.getById(id).then((res) => {
         setTarea(res);
 
@@ -39,6 +41,7 @@ const EnviarTareaContainer = ({ id }) => {
           .flat();
 
         setAlumnos(alumnosTemp);
+        setLoading(false);
       });
     }
   }, [isUsuarioLoading]);
@@ -55,6 +58,8 @@ const EnviarTareaContainer = ({ id }) => {
     setAlumnos(
       alumnos.map((a) => ({
         ...a,
+        visto: false,
+        estado: "PENDIENTE",
         enviar: rowData.id === a.id ? checked : a.enviar,
       }))
     );
@@ -90,33 +95,49 @@ const EnviarTareaContainer = ({ id }) => {
             <h1>Seleccione a los alumnos</h1>
 
             <DataTable
-              className='p-datatable-gridlines'
+              className='p-datatable-gridlines p-datatable-sm shadow-lg'
               value={alumnos}
-              className='p-datatable-gridlines shadow-lg'
               rowHover
               paginator
               rows={10}
               rowsPerPageOptions={[10, 25, 50]}
               autoLayout
-              emptyMessage='No se han encontrado resultados'>
+              emptyMessage='No se han encontrado resultados'
+              loading={isLoading}>
               <Column
                 header='#'
                 className='text-center'
                 style={{ width: "50px" }}
                 body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
+                headerClassName='text-center'
               />
-              <Column header='Estudiante' field='str' filter sortable />
-              <Column header='Aula' field='aula' filter sortable />
+              <Column
+                header='Estudiante'
+                field='str'
+                filter
+                sortable
+                headerClassName='text-center'
+              />
+              <Column
+                header='Aula'
+                field='aula'
+                filter
+                sortable
+                headerClassName='text-center'
+              />
 
               <Column
-                style={{ width: "100px" }}
+                style={{ width: "100px", padding: "0 0 0 0" }}
                 header='Enviar'
+                headerClassName='text-center'
                 body={(rowData) => {
                   return (
-                    <Checkbox
-                      onChange={onCheck(rowData)}
-                      checked={rowData.enviar}
-                    />
+                    <div className='text-center w-100 py-1'>
+                      <Checkbox
+                        onChange={onCheck(rowData)}
+                        checked={rowData.enviar}
+                      />
+                    </div>
                   );
                 }}
               />

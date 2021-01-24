@@ -8,14 +8,13 @@ const DashboardContainer = () => {
   return (
     <PrivateLayout>
       <main className='container-fluid'>
-        <div className='row'>
+        <div className='row mt-5'>
           <div className='col-lg-4 align-self-center'>
             <CardInfoUsuario />
           </div>
 
           <div className='col-lg-7 align-self-center '>
             <TareasPendientesTable />
-            <MensajesSinLeerTable />
           </div>
         </div>
       </main>

@@ -1,9 +1,9 @@
 import LoadingWrapper from "@components/Loadings/LoadingWrapper";
 import TareasTable from "@components/tareas/tareasTable";
 import PrivateLayout from "@layouts/privateLayout";
-import { Tarea } from "@services/Tareas.service";
 import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
 import useCustomRouter from "hooks/useCustomRouter";
+import useTareas from "hooks/useTareas";
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 
@@ -14,9 +14,10 @@ const TareasContainer = () => {
   const [usuario] = useUsuario();
   const [isUsuarioLoading] = useUsuarioIsLoading();
 
+  const { getTareas } = useTareas();
+
   useEffect(() => {
     cargarTareas();
-    console.log("TEST");
   }, [isUsuarioLoading]);
 
   const cargarTareas = () => {
@@ -28,9 +29,8 @@ const TareasContainer = () => {
         queryParams.estadoEnvio = "ENVIADO";
       }
 
-      Tarea.getAll(queryParams).then((res) => {
+      getTareas(queryParams).then((res) => {
         setData(res);
-        console.log(res);
         setCargando(false);
       });
     }

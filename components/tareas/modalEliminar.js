@@ -1,11 +1,14 @@
-import { Tarea } from "@services/Tareas.service";
+import useTareas from "hooks/useTareas";
 import { Button as ButtonPrime } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import React from "react";
+import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { Controller, useForm } from "react-hook-form";
-import { useToasts } from "react-toast-notifications";
 
+/**
+ *
+ * @param {{showEliminar:boolean,toggleEliminar:CallableFunction,tarea:object,cargarTareas:CallableFunction}} param0
+ */
 const ModalEliminarTarea = ({
   showEliminar,
   toggleEliminar,
@@ -13,11 +16,16 @@ const ModalEliminarTarea = ({
   cargarTareas,
 }) => {
   const methods = useForm({ mode: "onChange" });
-  const { addToast } = useToasts();
+  const { deleteTarea } = useTareas();
+  const [isEliminando, setEliminando] = useState(false);
+
   const { errors, handleSubmit } = methods;
+
   const onClickConfirmEliminar = async () => {
-    await Tarea.deleteTarea(tarea.id);
+    setEliminando(true);
+    await deleteTarea(tarea.id);
     await cargarTareas();
+    setEliminando(false);
   };
   console.log(errors);
   return (
@@ -26,7 +34,8 @@ const ModalEliminarTarea = ({
       aria-labelledby='contained-modal-title-vcenter'
       centered
       show={showEliminar}
-      onHide={toggleEliminar}>
+      onHide={toggleEliminar}
+      backdrop={isEliminando ? "static" : true}>
       <Modal.Header closeButton>
         <Modal.Title id='contained-modal-title-vcenter'>
           Confirmacion
@@ -34,8 +43,8 @@ const ModalEliminarTarea = ({
       </Modal.Header>
       <Modal.Body>
         <h5>Esta seguro de eliminar esta tarea?</h5>
-        {tarea?.titulo}
-        Esta tarea fue enviada a los siguientes alumnos:
+        {`${tarea?.titulo} Esta tarea fue enviada a los siguientes alumnos:`}
+
         <ol>
           {tarea?.estudiantes?.map((e, index) => (
             <li key={index}>{e?.persona?.str}</li>
@@ -47,6 +56,7 @@ const ModalEliminarTarea = ({
               <Controller
                 control={methods.control}
                 name='confirmacion'
+                defaultValue=''
                 rules={{
                   required: "Este campo es obligatorio",
                   validate: (value) => {
@@ -63,13 +73,15 @@ const ModalEliminarTarea = ({
                     onChange={({ currentTarget }) =>
                       onChange(currentTarget.value)
                     }
+                    disabled={isEliminando}
                   />
                 )}
               />
               <ButtonPrime
-                label='Eliminar'
+                label={isEliminando ? "Eliminando..." : "Confirmar"}
                 className='p-button-danger'
                 onClick={handleSubmit(onClickConfirmEliminar)}
+                disabled={isEliminando}
               />
             </div>
             {errors?.confirmacion && (
@@ -81,8 +93,13 @@ const ModalEliminarTarea = ({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={toggleEliminar} size='sm' variant='outline-danger'>
-          Cerrar
+        <Button
+          onClick={toggleEliminar}
+          size='sm'
+          variant='outline-danger'
+          disabled={isEliminando}>
+          {isEliminando && "Eliminando..."}
+          {!isEliminando && "Cerrar"}
         </Button>
       </Modal.Footer>
     </Modal>

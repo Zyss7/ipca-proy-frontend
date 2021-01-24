@@ -1,41 +1,50 @@
+import { dateToFormatDate } from "@utils/utils";
+import Link from "next/link";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React from "react";
 import { Button } from "react-bootstrap";
 
-const PlaylistTable = () => {
+const PlaylistTable = ({ data }) => {
   return (
     <React.Fragment>
-      <div className="datatable-doc-demo">
+      <div className='datatable-doc-demo'>
         <DataTable
-          value={[{ value: {} }]}
-          className="p-datatable-gridlines shadow-lg"
+          value={data}
+          className='p-datatable-gridlines shadow-lg'
           rowHover
           paginator
           rows={10}
           rowsPerPageOptions={[10, 25, 50]}
           autoLayout
-          emptyMessage="No se han encontrado resultados"
-        >
+          emptyMessage='No hay listas de reproduccion registradas'>
           <Column
-            header="#"
-            className="text-center"
+            header='#'
+            className='text-center'
             style={{ width: "50px" }}
             body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
           />
-          <Column header="Nombre" filter sortable />
-          <Column header="Descripcion" filter sortable />
-          <Column header="Fecha de creación" filter sortable />
+          <Column header='Nombre' field='titulo' filter sortable />
+          <Column header='Descripcion' field='descripcion' filter sortable />
           <Column
-            header="Opciones"
+            header='Fecha de creación'
+            field='createdAt'
+            filter
+            filterField='createdAt'
+            sortable
+            body={(rowData) => dateToFormatDate(rowData?.createdAt)}
+            style={{ width: "250px" }}
+          />
+          <Column
+            header='Opciones'
             bodyStyle={{ padding: "0.5rem 0.5rem 0.5rem 0.5rem" }}
-            body={() => (
+            body={(rowData) => (
               <React.Fragment>
                 <React.Fragment>
-                  <Button block size="sm">
-                    Editar
-                  </Button>
-                  <Button block size="sm" variant="danger">
+                  <Link href={`/playlist/form?id=${rowData?.id}`}>
+                    <a className='btn btn-primary btn-block btn-sm'>Editar</a>
+                  </Link>
+                  <Button block size='sm' variant='danger'>
                     Eliminar
                   </Button>
                 </React.Fragment>

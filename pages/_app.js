@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import "@assets/css/global.scss";
-//import "bootstrap/dist/css/bootstrap.min.css";
-import "bootswatch/dist/lux/bootstrap.min.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootswatch/dist/lux/bootstrap.min.css";
 import "jquery";
 import moment from "moment";
 import "moment/locale/es";

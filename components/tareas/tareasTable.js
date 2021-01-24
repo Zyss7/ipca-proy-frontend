@@ -1,19 +1,21 @@
 import { useUsuario } from "context/UsuarioContext";
 import useCustomRouter from "hooks/useCustomRouter";
+import useTareas from "hooks/useTareas";
+import moment from "moment";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import React, { useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, ListGroup } from "react-bootstrap";
 import ModalEliminarTarea from "./modalEliminar";
-import moment from "moment";
 
 const TareasTable = ({ data, cargarTareas }) => {
   const router = useCustomRouter();
-  const [modalShow, setModalShow] = useState(false);
 
   const [showEliminar, setShowEliminar] = useState(false);
 
   const [tarea, setTarea] = useState({});
+
+  const { changeEstado } = useTareas();
 
   const [usuario] = useUsuario();
 
@@ -33,14 +35,28 @@ const TareasTable = ({ data, cargarTareas }) => {
               </button>
             </div>
 
-            <div className='col-12'>
+            <div className='col-12 col-md-8'>
               <h4>Alumnos:</h4>
-              <ol>
-                {data?.alumnos?.map((alumno, index) => (
-                  <li key={index}>{alumno.str}</li>
-                ))}
-              </ol>
-              <h4>Estado: {data.estadoEnvio}</h4>
+              <table className='table table-sm table-light text-center'>
+                <thead className='thead-dark'>
+                  <tr>
+                    <th style={{ width: "50px" }}>#</th>
+                    <th>Alumno</th>
+                    <th style={{ width: "200px" }}>Estado</th>
+                    <th style={{ width: "100px" }}>Visto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.alumnos?.map((alumno, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{alumno.str}</td>
+                      <td> {alumno.estado}</td>
+                      <td>{alumno.show ? "SI" : "NO"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -61,12 +77,16 @@ const TareasTable = ({ data, cargarTareas }) => {
     setTarea(rowData);
   };
 
+  const onChangeEstado = (rowData) => async ({ target }) => {
+    await changeEstado(rowData?.id, rowData, target.value);
+  };
+
   return (
     <React.Fragment>
       <div className='datatable-doc-demo mb-5'>
         <DataTable
           value={data}
-          className='p-datatable-gridlines shadow-lg'
+          className='p-datatable-gridlines shadow-lg p-datatable-sm'
           rowHover
           paginator
           rows={10}
@@ -78,7 +98,7 @@ const TareasTable = ({ data, cargarTareas }) => {
           //onRowExpand={this.onRowExpand}
           //onRowCollapse={this.onRowCollapse}
           rowExpansionTemplate={rowExpandTemplate}>
-          <Column expander style={{ width: "4em" }} />
+          {usuario.isDocente && <Column expander style={{ width: "4em" }} />}
           <Column
             header='#'
             className='text-center'
@@ -106,13 +126,35 @@ const TareasTable = ({ data, cargarTareas }) => {
               return moment(rowData.fechaEntrega).format("LLL");
             }}
           />
-          <Column
-            header='Estado de envio'
-            filter
-            sortable
-            style={{ width: "175px" }}
-            field='estadoEnvio'
-          />
+          {usuario.isDocente && (
+            <Column
+              header='Estado de envio'
+              filter
+              sortable
+              style={{ width: "175px" }}
+              field='estadoEnvio'
+            />
+          )}
+
+          {usuario.isAlumno && (
+            <Column
+              header='Estado'
+              style={{ width: "150px" }}
+              filter
+              sortable
+              sortField='estado'
+              filterField='estado'
+              body={(rowData) => (
+                <select
+                  className='form-control'
+                  onChange={onChangeEstado(rowData)}
+                  defaultValue={rowData.estado}>
+                  <option value='PENDIENTE'>PENDIENTE</option>
+                  <option value='FINALIZADO'>FINALIZADO</option>
+                </select>
+              )}
+            />
+          )}
 
           <Column
             header='Opciones'
