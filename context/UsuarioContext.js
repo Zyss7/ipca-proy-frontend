@@ -17,7 +17,7 @@ export const UsuarioProvider = ({ children }) => {
 
 export const useUsuario = () => {
   const { usuario, setUsuario } = useContext(UsuarioContext);
-
+  
   const setter = (usuarioValue) => {
     setUsuario(usuarioValue);
   };

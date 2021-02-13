@@ -1,3 +1,4 @@
+import useCustomRouter from "hooks/useCustomRouter";
 import _ from "lodash";
 import { normalizeText } from "normalize-text";
 import { InputText } from "primereact/inputtext";
@@ -5,7 +6,7 @@ import React, { useState } from "react";
 
 const PlaylistAlumno = ({ data }) => {
   const [aguja, setAguja] = useState("");
-
+  const router = useCustomRouter();
   const [listas, setListas] = useState(data);
   const buscarPredicate = (source, path, aguja) => {
     return normalizeText(_.get(source, path, "")).includes(
@@ -84,7 +85,11 @@ const PlaylistAlumno = ({ data }) => {
                     </div>
                   </div>
                   <div className='card-footer'>
-                    <button className='btn btn-info btn-block btn-sm'>
+                    <button
+                      className='btn btn-info btn-block btn-sm'
+                      onClick={router.goTo(
+                        `/playlist/reproductor?id=${item?.id}`
+                      )}>
                       Detalles
                     </button>
                   </div>

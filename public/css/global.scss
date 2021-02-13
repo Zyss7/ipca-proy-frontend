@@ -10,6 +10,12 @@
   width: 100% !important;
 }
 
+.truncate-text {
+  overflow-x: hidden !important;
+  text-overflow: inherit !important;
+  white-space: nowrap !important;
+}
+
 /*
         LOADING WRAPPER
 */

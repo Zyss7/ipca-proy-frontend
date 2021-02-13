@@ -21,8 +21,8 @@ const PrivateNavbar = () => {
       sticky='top'
       className='mb-3'>
       <Navbar.Toggle aria-controls='responsive-navbar-nav' />
-      <Navbar.Collapse id='responsive-navbar-nav'>
-        <Nav className='mr-auto'>
+      <Navbar.Collapse id='basic-navbar-nav'>
+        <Nav className='mr-auto d-flex flex-row justify-content-around w-100'>
           <Link href='/dashboard'>
             <Nav.Link as='a' className='pointer'>
               Inicio
@@ -34,37 +34,28 @@ const PrivateNavbar = () => {
             </Nav.Link>
           </Link>
 
-          <Link href='/mensajes'>
-            <Nav.Link as='a' className='pointer'>
-              Mensajes
-            </Nav.Link>
-          </Link>
-
           <Link href='/playlist'>
             <Nav.Link as='a' className='pointer'>
               Playlist
             </Nav.Link>
           </Link>
 
-          <NavDropdown title='Información' id='collasible-nav-dropdown'>
-            <Link href='/docentes'>
-              <NavDropdown.Item as='a' className='pointer'>
-                Docentes
+          <div className='ml-auto d-flex flex-row'>
+            {/* <NavDropdown title='Informacion' id='basic-nav-dropdown'>
+              <NavDropdown.Item href='#action/3.1'>Action</NavDropdown.Item>
+              <NavDropdown.Item href='#action/3.2'>
+                Another action
               </NavDropdown.Item>
-            </Link>
-
-            <Link href='/paginas/inicio'>
-              <NavDropdown.Item as='a' className='pointer'>
-                Alumnos
+              <NavDropdown.Item href='#action/3.3'>Something</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href='#action/3.4'>
+                Separated link
               </NavDropdown.Item>
-            </Link>
-          </NavDropdown>
-
-          <Nav className='float-right'>
-            <Button variant='outline-light' onClick={loggout}>
+            </NavDropdown> */}
+            <Button variant='outline-light ' onClick={loggout}>
               Cerrar Sesión
             </Button>
-          </Nav>
+          </div>
         </Nav>
       </Navbar.Collapse>
     </Navbar>

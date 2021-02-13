@@ -1,6 +1,11 @@
 import React from "react";
 
-const LoadingWrapper = ({ children, loading, texto = "Cargando" }) => {
+const LoadingWrapper = ({
+  children,
+  loading,
+  texto = "Cargando",
+  styles = {},
+}) => {
   if (loading) {
     return (
       <div
@@ -12,6 +17,7 @@ const LoadingWrapper = ({ children, loading, texto = "Cargando" }) => {
           alignContent: "center",
           alignItems: "center",
           textAlign: "center",
+          ...styles,
         }}>
         <div
           className='lds-spinner'

@@ -25,7 +25,6 @@ const PlaylistTable = ({ data }) => {
             body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
           />
           <Column header='Nombre' field='titulo' filter sortable />
-          <Column header='Descripcion' field='descripcion' filter sortable />
           <Column
             header='Fecha de creación'
             field='createdAt'

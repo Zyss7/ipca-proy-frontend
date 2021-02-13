@@ -25,7 +25,6 @@ const usePlayList = () => {
 
   const getById = async (id) => {
     const res = await axios.post(urlGetListaById(id));
-
     return res?.data;
   };
 

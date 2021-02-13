@@ -57,6 +57,7 @@ export default function MyApp({ Component, pageProps }) {
   );
 }
 
+
 /** 
  import '@/assets/css/dataTable.scss';
 import '@/assets/css/navbar.scss';

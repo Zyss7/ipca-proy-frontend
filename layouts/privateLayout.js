@@ -6,8 +6,9 @@ import { useRouter } from "next/router";
 import { useToasts } from "react-toast-notifications";
 import LoadingWrapper from "@components/Loadings/LoadingWrapper";
 import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
+import whitAuth from "HOC/whitAuth";
 
-const PrivateLayout = ({ children, title }) => {
+const Index = ({ children, title }) => {
   const router = useRouter();
   const { addToast } = useToasts();
 
@@ -45,5 +46,7 @@ const PrivateLayout = ({ children, title }) => {
     </React.Fragment>
   );
 };
+
+const PrivateLayout = whitAuth(Index);
 
 export default PrivateLayout;

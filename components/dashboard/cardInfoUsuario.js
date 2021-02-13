@@ -36,6 +36,7 @@ const CardInfoUsuario = () => {
             <h6>{usuario?.grupoStr}</h6>
           </div>
         </div>
+        <hr />
       </div>
     </div>
   );

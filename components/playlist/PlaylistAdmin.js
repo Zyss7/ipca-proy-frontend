@@ -24,7 +24,7 @@ const PlaylistAdmin = ({ data }) => {
         </Link>
       </h1>
 
-      <div className='row justify-content-center'>
+    <div className='row justify-content-center'>
         <div className='col-lg-11 align-self-center '>
           <PlaylistTable data={data} />
         </div>

@@ -61,7 +61,8 @@ const useTareas = () => {
    * @param {number} index
    */
   const mappTarea = (tarea, index) => {
-    const alumno = tarea?.alumnos.find((alumno) => alumno.id === usuario.id);
+    const alumno =
+      tarea?.alumnos?.find?.((alumno) => alumno.id === usuario.id) || [];
     tarea.estado = alumno.estado;
     tarea.show = alumno.show;
     return tarea;
