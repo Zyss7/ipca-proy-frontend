@@ -1,52 +1,38 @@
-import React, { useCallback, useEffect, useState } from "react";
-import Head from "next/head";
-import PrivateNavbar from "@components/Navbars/privateNavbar";
-import { Usuario } from "@services/Usuario.service";
-import { useRouter } from "next/router";
-import { useToasts } from "react-toast-notifications";
-import LoadingWrapper from "@components/Loadings/LoadingWrapper";
-import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
-import whitAuth from "HOC/whitAuth";
+import LoadingWrapper from '@components/Loadings/LoadingWrapper';
+import PrivateNavbar from '@components/Navbars/privateNavbar';
+import useUsuario from 'hooks/useUsuario';
+import Head from 'next/head';
+import React, { useEffect } from 'react';
 
-const Index = ({ children, title }) => {
-  const router = useRouter();
-  const { addToast } = useToasts();
-
-  const [usuario, setUsuario] = useUsuario();
-  const [isLoading, setIsLoading] = useUsuarioIsLoading();
-
-  const init = useCallback(async () => {
-    setIsLoading(true);
-    if (!usuario) {
-      const response = await Usuario.getInfoUsuario();
-      setUsuario(response);
-    }
-    setIsLoading(false);
-  }, []);
+const PrivateLayout = ({ children, title }) => {
+  const { usuario, refreshUsuario } = useUsuario();
 
   useEffect(() => {
-    const isLoggedIn = Usuario.getUsuarioStorage();
-    if (!isLoggedIn) {
-      addToast("DEBE INICIAR SESION!", { appearance: "warning" });
-      router.push("/login");
-    } else {
-      init();
-    }
+    const bucle = setInterval(() => {
+      refreshUsuario();
+    }, 5000 * 60);
+    return () => {
+      clearInterval(bucle);
+    };
   }, []);
 
   return (
     <React.Fragment>
       <Head>
-        <title>{title || "MyLittleApp"}</title>
+        <title>{title || 'MyLittleApp'}</title>
       </Head>
-      <LoadingWrapper loading={isLoading}>
-        <PrivateNavbar />
-        {children}
+      <LoadingWrapper>
+        {usuario && (
+          <React.Fragment>
+            <PrivateNavbar />
+            {children}
+          </React.Fragment>
+        )}
       </LoadingWrapper>
     </React.Fragment>
   );
 };
 
-const PrivateLayout = whitAuth(Index);
+// const PrivateLayout = whitAuth(Index);
 
 export default PrivateLayout;

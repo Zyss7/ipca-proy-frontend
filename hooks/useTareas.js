@@ -1,17 +1,16 @@
-import { useUsuario } from "context/UsuarioContext";
-import useAxios from "./useAxios";
+import useAxios from './useAxios';
+import useUsuario from './useUsuario';
 
 const useTareas = () => {
-  const { axios } = useAxios();
-  const [usuario] = useUsuario();
+  const { privateAxios } = useAxios();
+  const { usuario } = useUsuario();
 
   /**
    *
    * @param {*} queryParams
    */
   const getTareas = async (queryParams = {}) => {
-    const { status, data } = await axios.post("get-tareas", {
-      identificacion: usuario?.persona.identificacion,
+    const { status, data } = await privateAxios.post('get-tareas', {
       ...queryParams,
     });
 
@@ -21,7 +20,7 @@ const useTareas = () => {
   };
 
   const getTareaById = async (id) => {
-    const { status, data } = await axios.get(`tareas/${id}`);
+    const { status, data } = await privateAxios.get(`tareas/${id}`);
 
     if (status === 200) {
       return mappTarea(data?.data);
@@ -33,7 +32,7 @@ const useTareas = () => {
    * @param {number} id
    */
   const deleteTarea = async (id) => {
-    const res = await axios.delete(`delete-tarea/${id}`);
+    const res = await privateAxios.delete(`delete-tarea/${id}`);
     return res?.data;
   };
 
@@ -51,7 +50,7 @@ const useTareas = () => {
       show: alumno.id === usuario.id ? true : alumno.show,
     }));
 
-    const res = await axios.put(`tareas/${id}`, tarea);
+    const res = await privateAxios.put(`tareas/${id}`, tarea);
     return res?.data;
   };
 
@@ -61,8 +60,7 @@ const useTareas = () => {
    * @param {number} index
    */
   const mappTarea = (tarea, index) => {
-    const alumno =
-      tarea?.alumnos?.find?.((alumno) => alumno.id === usuario.id) || [];
+    const alumno = tarea?.alumnos?.find?.((alumno) => alumno.id === usuario?.id) || [];
     tarea.estado = alumno.estado;
     tarea.show = alumno.show;
     return tarea;

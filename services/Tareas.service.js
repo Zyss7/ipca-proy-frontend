@@ -1,17 +1,26 @@
-import moment from "moment";
-import Axios from "./Axios";
-import { Usuario } from "./Usuario.service";
+import moment from 'moment';
+import Axios from './Axios';
+import { Usuario } from './Usuario.service';
 
 export class Tarea {
-  static PENDIENTE = "PENDIENTE";
-  static ENVIADO = "ENVIADO";
+  static PENDIENTE = 'PENDIENTE';
+  static ENVIADO = 'ENVIADO';
 
   static getAll = async (queryParams = {}) => {
     const usuario = Usuario.getMappedUsuario();
-    const { status, data } = await Axios.post("get-tareas", {
-      identificacion: usuario?.persona.identificacion,
-      ...queryParams,
-    });
+    console.log(localStorage.getItem('usuarioMLN'));
+    const { status, data } = await Axios.post(
+      'get-tareas',
+      {
+        identificacion: usuario?.persona.identificacion,
+        ...queryParams,
+      },
+      // {
+      //   headers: {
+      //     authorization: '',
+      //   },
+      // },
+    );
 
     if (status === 200) {
       return data?.data;
@@ -34,7 +43,7 @@ export class Tarea {
     tarea.createdAt = moment().toISOString();
     tarea.docente = this.mappDocente();
 
-    const { data } = await Axios.post("create-tarea", tarea);
+    const { data } = await Axios.post('create-tarea', tarea);
 
     return data.data;
   };

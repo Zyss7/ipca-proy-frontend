@@ -1,8 +1,9 @@
-import Axios from "axios";
-import { URL_API_MN } from "./urls";
+import Axios from 'axios';
+import { URL_API_MN } from './urls';
 
-const instance = Axios.create({
+const axios = Axios.create({
   baseURL: URL_API_MN,
+  headers: { authorization: '123' },
 });
 
-export default instance;
+export default axios;

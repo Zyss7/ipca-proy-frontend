@@ -1,17 +1,17 @@
-import LoadingWrapper from "@components/Loadings/LoadingWrapper";
-import PlaylistAdmin from "@components/playlist/PlaylistAdmin";
-import PlaylistAlumno from "@components/playlist/PlaylistAlumno";
-import PrivateLayout from "@layouts/privateLayout";
-import { useUsuario } from "context/UsuarioContext";
-import usePlayList from "hooks/usePlayList";
-import React, { useEffect, useState } from "react";
+import LoadingWrapper from '@components/Loadings/LoadingWrapper';
+import PlaylistAdmin from '@components/playlist/PlaylistAdmin';
+import PlaylistAlumno from '@components/playlist/PlaylistAlumno';
+import PrivateLayout from '@layouts/privateLayout';
+import usePlayList from 'hooks/usePlayList';
+import useUsuario from 'hooks/useUsuario';
+import React, { useEffect, useState } from 'react';
 
 const PlaylistContainer = () => {
   const [cargando, setCargando] = useState(false);
   const [data, setData] = useState([]);
   const [showList, setShowList] = useState(false);
   const { getListasTable } = usePlayList();
-  const [usuario] = useUsuario();
+  const { usuario } = useUsuario();
 
   useEffect(() => {
     setCargando(true);

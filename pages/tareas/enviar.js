@@ -1,67 +1,68 @@
-import PrivateLayout from "@layouts/privateLayout";
-import { Tarea } from "@services/Tareas.service";
-import { useUsuario, useUsuarioIsLoading } from "context/UsuarioContext";
-import useCustomRouter from "hooks/useCustomRouter";
-import { Button } from "primereact/button";
-import { Checkbox } from "primereact/checkbox";
-import { Column } from "primereact/column";
-import { DataTable } from "primereact/datatable";
-import React, { useCallback, useEffect, useState } from "react";
-import { useToasts } from "react-toast-notifications";
+import PrivateLayout from '@layouts/privateLayout';
+import { Tarea } from '@services/Tareas.service';
+import useCustomRouter from 'hooks/useCustomRouter';
+import useTareas from 'hooks/useTareas';
+import useUsuario from 'hooks/useUsuario';
+import { Button } from 'primereact/button';
+import { Checkbox } from 'primereact/checkbox';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useToasts } from 'react-toast-notifications';
 
 const EnviarTareaContainer = ({ id }) => {
   const [tarea, setTarea] = useState({});
 
   const [alumnos, setAlumnos] = useState([]);
-  const [usuario] = useUsuario();
-  const [isUsuarioLoading] = useUsuarioIsLoading();
+  const { usuario } = useUsuario();
+
   const [isLoading, setLoading] = useState(false);
   const { addToast } = useToasts();
+
+  const { getTareaById } = useTareas();
 
   const router = useCustomRouter();
 
   const init = useCallback(() => {
-    if (!isUsuarioLoading) {
-      setLoading(true);
-      Tarea.getById(id).then((res) => {
-        setTarea(res);
+    setLoading(true);
+    getTareaById(id).then((res) => {
+      setTarea(res);
 
-        const alumnosTemp = usuario.aulas
-          .map((aula) =>
-            aula.alumnos.map((alumno) => {
-              const alumnoTarea = res?.alumnos?.find((a) => a.id === alumno.id);
-              return {
-                ...alumno,
-                enviar: alumnoTarea && true,
-                idAula: aula.id,
-                aula: aula.nombre,
-              };
-            })
-          )
-          .flat();
+      const alumnosTemp = usuario.aulas
+        .map((aula) =>
+          aula.alumnos.map((alumno) => {
+            const alumnoTarea = res?.alumnos?.find((a) => a.id === alumno.id);
+            return {
+              ...alumno,
+              enviar: alumnoTarea && true,
+              idAula: aula.id,
+              aula: aula.nombre,
+            };
+          }),
+        )
+        .flat();
 
-        setAlumnos(alumnosTemp);
-        setLoading(false);
-      });
-    }
-  }, [isUsuarioLoading]);
+      setAlumnos(alumnosTemp);
+      setLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
     if (id) {
       init();
     } else {
-      router.replace("/tareas");
+      router.replace('/tareas');
     }
-  }, [init, isUsuarioLoading]);
+  }, [init]);
 
   const onCheck = (rowData) => ({ checked }) => {
     setAlumnos(
       alumnos.map((a) => ({
         ...a,
         visto: false,
-        estado: "PENDIENTE",
+        estado: 'PENDIENTE',
         enviar: rowData.id === a.id ? checked : a.enviar,
-      }))
+      })),
     );
   };
 
@@ -73,70 +74,68 @@ const EnviarTareaContainer = ({ id }) => {
     const alumnosEnviar = alumnos.filter((a) => a.enviar === true);
 
     if (alumnosEnviar.length === 0) {
-      return addToast("DEBE SELECCIONAR AL MENOS UN ALUMNO", {
-        appearance: "error",
+      return addToast('DEBE SELECCIONAR AL MENOS UN ALUMNO', {
+        appearance: 'error',
       });
     }
 
     tarea.alumnos = alumnosEnviar;
 
-    tarea.estadoEnvio = "ENVIADO";
+    tarea.estadoEnvio = 'ENVIADO';
 
     await Tarea.update(id, tarea);
-    router.push("/tareas");
+    router.push('/tareas');
   };
 
   return (
     <PrivateLayout>
-      <main className='container-fluid'>
-        <h1 className='text-center my-5'>Tarea: {tarea?.titulo}</h1>
-        <div className='row justify-content-center'>
-          <div className='col-md-10 col-lg-9 col-xl-8'>
+      <main className="container-fluid">
+        <h1 className="text-center my-5">Tarea: {tarea?.titulo}</h1>
+        <div className="row justify-content-center">
+          <div className="col-md-10 col-lg-9 col-xl-8">
             <h1>Seleccione a los alumnos</h1>
 
             <DataTable
-              className='p-datatable-gridlines p-datatable-sm shadow-lg'
+              className="p-datatable-gridlines p-datatable-sm shadow-lg"
               value={alumnos}
               rowHover
               paginator
               rows={10}
               rowsPerPageOptions={[10, 25, 50]}
               autoLayout
-              emptyMessage='No se han encontrado resultados'
-              loading={isLoading}>
+              emptyMessage="No se han encontrado resultados"
+              loading={isLoading}
+            >
               <Column
-                header='#'
-                className='text-center'
-                style={{ width: "50px" }}
+                header="#"
+                className="text-center"
+                style={{ width: '50px' }}
                 body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
-                headerClassName='text-center'
+                headerClassName="text-center"
               />
               <Column
-                header='Estudiante'
-                field='str'
+                header="Estudiante"
+                field="str"
                 filter
                 sortable
-                headerClassName='text-center'
+                headerClassName="text-center"
               />
               <Column
-                header='Aula'
-                field='aula'
+                header="Aula"
+                field="aula"
                 filter
                 sortable
-                headerClassName='text-center'
+                headerClassName="text-center"
               />
 
               <Column
-                style={{ width: "100px", padding: "0 0 0 0" }}
-                header='Enviar'
-                headerClassName='text-center'
+                style={{ width: '100px', padding: '0 0 0 0' }}
+                header="Enviar"
+                headerClassName="text-center"
                 body={(rowData) => {
                   return (
-                    <div className='text-center w-100 py-1'>
-                      <Checkbox
-                        onChange={onCheck(rowData)}
-                        checked={rowData.enviar}
-                      />
+                    <div className="text-center w-100 py-1">
+                      <Checkbox onChange={onCheck(rowData)} checked={rowData.enviar} />
                     </div>
                   );
                 }}
@@ -145,18 +144,18 @@ const EnviarTareaContainer = ({ id }) => {
           </div>
         </div>
 
-        <div className='row justify-content-center mt-5'>
-          <div className='col-md-4 my-2'>
+        <div className="row justify-content-center mt-5">
+          <div className="col-md-4 my-2">
             <Button
-              className='btn-block p-button-outlined p-button-danger'
-              label='Regresar'
+              className="btn-block p-button-outlined p-button-danger"
+              label="Regresar"
               onClick={onClickAtras}
             />
           </div>
-          <div className='col-md-4 my-2'>
+          <div className="col-md-4 my-2">
             <Button
-              className='btn-block p-button-outlined p-button-success'
-              label='Enviar'
+              className="btn-block p-button-outlined p-button-success"
+              label="Enviar"
               onClick={onClickEnviar}
             />
           </div>

@@ -1,37 +1,16 @@
-import { useEffect, useState } from "react";
+import useAxios from './useAxios';
 
-export const useSpeak = ({ validarSpeaking = false } = {}) => {
-  const [isSpeaking, setSpeaking] = useState(false);
-  const [synth, setSynth] = useState(null);
-  const _speak = (text) => {
-    SpeechSynthesisUtterance.lang = "es-Es";
-    console.log(synth.getVoices());
-    const speakText = new SpeechSynthesisUtterance(text);
+export const useSpeak = () => {
+  const { privateAxios } = useAxios();
 
-    synth.speak(speakText);
-    speakText.onstart = (e) => setSpeaking(true);
-    speakText.onend = (e) => setSpeaking(false);
-  };
-  /*
-  const [window, setWindow] = useState(null);
-*/
-  useEffect(() => {
-    setSynth(window?.speechSynthesis);
-  }, []);
-
-  const speak = (text) => {
-    if (validarSpeaking) {
-      if (!isSpeaking) {
-        _speak(text);
-      }
-    } else {
-      _speak(text);
-    }
+  const fetchAudio = async (text) => {
+    const res = await privateAxios.post(
+      '/text-to-speach',
+      { text },
+      { responseType: 'blob' },
+    );
+    return res?.data;
   };
 
-  const stopSpeak = () => {
-    synth.cancel();
-  };
-
-  return { speak, isSpeaking, stopSpeak };
+  return { fetchAudio };
 };

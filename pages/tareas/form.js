@@ -4,7 +4,7 @@ import { Tarea } from "@services/Tareas.service";
 import { useSpeak } from "hooks/useSpeak";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Form, Row } from "react-bootstrap";
 import { FormProvider, useForm } from "react-hook-form";
 import { useToasts } from "react-toast-notifications";
@@ -16,7 +16,10 @@ const FormTareaContainer = ({ id }) => {
   const { register, errors, handleSubmit } = methods;
   const { addToast } = useToasts();
 
-  const { speak, isSpeaking, stopSpeak } = useSpeak();
+  const { fetchAudio } = useSpeak();
+  const audioRef = useRef(null);
+
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const router = useRouter();
 
@@ -30,7 +33,6 @@ const FormTareaContainer = ({ id }) => {
   }, []);
 
   const onGuardar = async (data) => {
-    console.log(data);
     data.estadoEnvio = "PENDIENTE";
 
     if (id) {
@@ -54,15 +56,22 @@ const FormTareaContainer = ({ id }) => {
   const onSubmitError = () => {
     console.log("ERROR");
   };
+  const stopSpeak = () => {
+    audioRef?.current?.pause();
+  };
 
-  const onClickEscuchar = () => {
-    const descripcionHablada = methods.getValues("descripcionHablada");
-    if (!descripcionHablada) {
-      return addToast("NO HA INGRESADO NINGUNA DESCRIPCION!", {
-        appearance: "warning",
-      });
+  const onClickEscuchar = async () => {
+    if (!isSpeaking) {
+      const descripcionHablada = methods.getValues("descripcionHablada");
+      if (!descripcionHablada) {
+        return addToast("NO HA INGRESADO NINGUNA DESCRIPCION!", {
+          appearance: "warning",
+        });
+      }
+      const res = await fetchAudio(descripcionHablada);
+      audioRef.current.src = window.URL.createObjectURL(res);
+      audioRef.current?.play();
     }
-    speak(descripcionHablada);
   };
 
   return (
@@ -70,7 +79,20 @@ const FormTareaContainer = ({ id }) => {
       <FormProvider {...methods}>
         <main className='container-fluid'>
           <h1 className='display-4 text-center my-5'>Crea y edita una tarea</h1>
-
+          <audio
+            className='d-none'
+            ref={(ref) => {
+              try {
+                audioRef.current = ref;
+                ref.onplay = () => {
+                  setIsSpeaking(true);
+                };
+                ref.onpause = () => {
+                  setIsSpeaking(false);
+                };
+              } catch (error) {}
+            }}
+          />
           <div className='row justify-content-center'>
             <div className='col-lg-10'>
               <form>

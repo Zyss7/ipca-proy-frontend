@@ -1,11 +1,11 @@
-import { gql } from "@apollo/client";
-import Axios from "./Axios";
+import { gql } from '@apollo/client';
+import Axios from './Axios';
 
 export class Usuario {
-  static STORAGE_USU_KEY = "usuarioMLN";
+  static STORAGE_USU_KEY = 'usuarioMLN';
 
-  static DOCENTE = "DOCENTE";
-  static ALUMNO = "ALUMNO";
+  static DOCENTE = 'DOCENTE';
+  static ALUMNO = 'ALUMNO';
 
   static login = gql`
     mutation login($username: String!, $password: String!) {
@@ -66,7 +66,7 @@ export class Usuario {
 
   static guardarUsuarioStorage = (usuario) => {
     try {
-      console.log("usuario:", usuario);
+      console.log('usuario:', usuario);
       localStorage.setItem(this.STORAGE_USU_KEY, JSON.stringify(usuario));
     } catch (error) {
       return false;
@@ -93,10 +93,10 @@ export class Usuario {
     return {
       usuario: usuario,
       persona: {
-        id: persona.id,
-        identificacion: persona.identificacion,
-        str: persona.str,
-        correo: persona.correo,
+        id: persona?.id,
+        identificacion: persona?.identificacion,
+        str: persona?.str,
+        correo: persona?.correo,
       },
     };
   };
@@ -106,10 +106,10 @@ export class Usuario {
   };
 
   static isDocente = () => {
-    return this.getUsuarioStorage().grupoStr === "DOCENTE";
+    return this.getUsuarioStorage().grupoStr === 'DOCENTE';
   };
   static isRepresentante = () => {
-    return this.getUsuarioStorage().grupoStr === "REPRESENTANTE";
+    return this.getUsuarioStorage().grupoStr === 'REPRESENTANTE';
   };
 
   static getMisAlumnos = async () => {
@@ -122,7 +122,7 @@ export class Usuario {
     const body = {
       identificacion: usuario.persona.identificacion,
     };
-    const { status, data } = await Axios.post("get-info-usuario", body);
+    const { status, data } = await Axios.post('get-info-usuario', body);
 
     if (status === 200 && data?.transaccion) {
       return data?.data;
