@@ -29,6 +29,7 @@ const Login = () => {
    */
 
   const onSubmit = async (input) => {
+    console.log(input);
     input.username = input.username.trim();
     input.password = input.password.trim();
     try {
@@ -41,7 +42,8 @@ const Login = () => {
 
       addToast(res?.error?.mensaje, { appearance: 'warning' });
     } catch (error) {
-      addToast('Ha ocurrido un prblema al realizar el login', { appearance: 'warning' });
+      console.log(error);
+      addToast('Ha ocurrido un problema al realizar el login', { appearance: 'warning' });
     }
 
     setLoading(false);

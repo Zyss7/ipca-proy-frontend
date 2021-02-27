@@ -30,6 +30,7 @@ const useUsuario = () => {
    * @param {{username:string, password:string}} data
    */
   const login = async ({ username, password }) => {
+    //console.log('PUSH: ', await getDataPushNotifications());
     const res = await publicAxios.post(
       'login',
       {

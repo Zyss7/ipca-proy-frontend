@@ -1,10 +1,15 @@
 export const registerSw = async () => {
-  // if ("serviceWorker" in navigator) {
-  const reg = await navigator.serviceWorker.register('/sw.js');
-  return subscribe(reg);
-  // } else {
-  //showNotAllowed("You can't send push notifications ☹️😢");
-  // }
+  try {
+    // if ("serviceWorker" in navigator) {
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    return subscribe(reg);
+    // } else {
+    //showNotAllowed("You can't send push notifications ☹️😢");
+    // }
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
 };
 
 function urlB64ToUint8Array(base64String) {
