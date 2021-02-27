@@ -1,17 +1,17 @@
-import CustomDateTimePicker from "@components/Inputs/CustomDateTimePicker";
-import PrivateLayout from "@layouts/privateLayout";
-import { Tarea } from "@services/Tareas.service";
-import { useSpeak } from "hooks/useSpeak";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Form, Row } from "react-bootstrap";
-import { FormProvider, useForm } from "react-hook-form";
-import { useToasts } from "react-toast-notifications";
-import { CustomTextEditor } from "../../components/exports/index";
+import CustomDateTimePicker from '@components/Inputs/CustomDateTimePicker';
+import PrivateLayout from '@layouts/privateLayout';
+import { Tarea } from '@services/Tareas.service';
+import { useSpeak } from 'hooks/useSpeak';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Form, Row } from 'react-bootstrap';
+import { FormProvider, useForm } from 'react-hook-form';
+import { useToasts } from 'react-toast-notifications';
+import { CustomTextEditor } from '../../components/exports/index';
 
 const FormTareaContainer = ({ id }) => {
-  const methods = useForm({ mode: "onChange" });
+  const methods = useForm({ mode: 'onChange' });
 
   const { register, errors, handleSubmit } = methods;
   const { addToast } = useToasts();
@@ -25,7 +25,7 @@ const FormTareaContainer = ({ id }) => {
 
   useEffect(() => {
     if (id) {
-      console.log("EDITAR");
+      console.log('EDITAR');
       Tarea.getById(id).then((res) => {
         methods.reset(res);
       });
@@ -33,7 +33,7 @@ const FormTareaContainer = ({ id }) => {
   }, []);
 
   const onGuardar = async (data) => {
-    data.estadoEnvio = "PENDIENTE";
+    data.estadoEnvio = 'PENDIENTE';
 
     if (id) {
       await Tarea.update(id, data);
@@ -44,6 +44,8 @@ const FormTareaContainer = ({ id }) => {
   };
 
   const onEnviar = async (data) => {
+    data.estadoEnvio = 'PENDIENTE';
+    console.log('DATA: ', data);
     if (id) {
       await Tarea.update(id, data);
       return router.push(`/tareas/enviar?id=${id}`);
@@ -54,7 +56,7 @@ const FormTareaContainer = ({ id }) => {
   };
 
   const onSubmitError = () => {
-    console.log("ERROR");
+    console.log('ERROR');
   };
   const stopSpeak = () => {
     audioRef?.current?.pause();
@@ -62,10 +64,10 @@ const FormTareaContainer = ({ id }) => {
 
   const onClickEscuchar = async () => {
     if (!isSpeaking) {
-      const descripcionHablada = methods.getValues("descripcionHablada");
+      const descripcionHablada = methods.getValues('descripcionHablada');
       if (!descripcionHablada) {
-        return addToast("NO HA INGRESADO NINGUNA DESCRIPCION!", {
-          appearance: "warning",
+        return addToast('NO HA INGRESADO NINGUNA DESCRIPCION!', {
+          appearance: 'warning',
         });
       }
       const res = await fetchAudio(descripcionHablada);
@@ -77,10 +79,10 @@ const FormTareaContainer = ({ id }) => {
   return (
     <PrivateLayout>
       <FormProvider {...methods}>
-        <main className='container-fluid'>
-          <h1 className='display-4 text-center my-5'>Crea y edita una tarea</h1>
+        <main className="container-fluid">
+          <h1 className="display-4 text-center my-5">Crea y edita una tarea</h1>
           <audio
-            className='d-none'
+            className="d-none"
             ref={(ref) => {
               try {
                 audioRef.current = ref;
@@ -93,78 +95,77 @@ const FormTareaContainer = ({ id }) => {
               } catch (error) {}
             }}
           />
-          <div className='row justify-content-center'>
-            <div className='col-lg-10'>
+          <div className="row justify-content-center">
+            <div className="col-lg-10">
               <form>
-                <div className='form-row'>
-                  <div className='col-lg-6'>
+                <div className="form-row">
+                  <div className="col-lg-6">
                     <Form.Group>
                       <Form.Label>Titulo de la tarea:</Form.Label>
                       <Form.Control
-                        name='titulo'
+                        name="titulo"
                         isInvalid={!!errors.titulo}
                         ref={register({
-                          required: "Este campo es Obligatorio",
+                          required: 'Este campo es Obligatorio',
                         })}
                       />
-                      <Form.Control.Feedback type='invalid'>
-                        <p className='text-danger'>{errors?.titulo?.message}</p>
+                      <Form.Control.Feedback type="invalid">
+                        <p className="text-danger">{errors?.titulo?.message}</p>
                       </Form.Control.Feedback>
                     </Form.Group>
                   </div>
 
-                  <div className='col-lg-6'>
-                    <CustomDateTimePicker
-                      name='fechaEntrega'
-                      label='Fecha de Entrega'
-                    />
+                  <div className="col-lg-6">
+                    <CustomDateTimePicker name="fechaEntrega" label="Fecha de Entrega" />
                   </div>
 
-                  <div className='col-12'>
+                  <div className="col-12">
                     <CustomTextEditor
-                      label='Descripcion:'
-                      name='descripcion'
+                      label="Descripcion:"
+                      name="descripcion"
                       rules={{
-                        required: "Este campo es Obligatorio",
+                        required: 'Este campo es Obligatorio',
                       }}
                     />
                   </div>
 
-                  <div className='col-lg-12'></div>
+                  <div className="col-lg-12"></div>
 
-                  <div className='col-12'>
+                  <div className="col-12">
                     <Form.Group>
                       <Form.Label>
                         Descripción hablada:
                         <Button
-                          className='ml-1 rounded font-weight-bold'
-                          size='sm'
-                          type='button'
-                          onClick={onClickEscuchar}>
-                          <i className='pi pi-volume-up' />
+                          className="ml-1 rounded font-weight-bold"
+                          size="sm"
+                          type="button"
+                          onClick={onClickEscuchar}
+                        >
+                          <i className="pi pi-volume-up" />
                         </Button>
                         {isSpeaking && (
                           <Button
-                            className='ml-1 rounded font-weight-bold'
-                            size='sm'
-                            type='button'
-                            variant='danger'
-                            onClick={stopSpeak}>
-                            <i className='pi pi-pause' />
+                            className="ml-1 rounded font-weight-bold"
+                            size="sm"
+                            type="button"
+                            variant="danger"
+                            onClick={stopSpeak}
+                          >
+                            <i className="pi pi-pause" />
                           </Button>
                         )}
                       </Form.Label>
                       <Form.Control
-                        as='textarea'
-                        name='descripcionHablada'
+                        as="textarea"
+                        name="descripcionHablada"
                         rows={7}
                         isInvalid={!!errors.titulo}
                         ref={register({
-                          required: "Este campo es Obligatorio",
+                          required: 'Este campo es Obligatorio',
                         })}
                       />
-                      <Form.Control.Feedback type='invalid'>
-                        <p className='text-danger'>
+                      <Form.Control.Feedback type="invalid">
+                        <p className="text-danger">
                           {errors?.descripcionHablada?.message}
                         </p>
                       </Form.Control.Feedback>
@@ -172,27 +173,29 @@ const FormTareaContainer = ({ id }) => {
                   </div>
                 </div>
 
-                <Row className='justify-content-around mb-5'>
-                  <div className='col-md-3'>
-                    <Link href='/tareas'>
-                      <a className='btn btn-block btn-danger'>Cancelar</a>
+                <Row className="justify-content-around mb-5">
+                  <div className="col-md-3">
+                    <Link href="/tareas">
+                      <a className="btn btn-block btn-danger">Cancelar</a>
                     </Link>
                   </div>
-                  <div className='col-md-3'>
+                  <div className="col-md-3">
                     <Button
-                      variant='success'
-                      type='button'
+                      variant="success"
+                      type="button"
                       block
-                      onClick={handleSubmit(onGuardar, onSubmitError)}>
+                      onClick={handleSubmit(onGuardar, onSubmitError)}
+                    >
                       Guardar
                     </Button>
                   </div>
-                  <div className='col-md-3'>
+                  <div className="col-md-3">
                     <Button
-                      variant='info'
-                      type='submit'
+                      variant="info"
+                      type="submit"
                       block
-                      onClick={handleSubmit(onEnviar, onSubmitError)}>
+                      onClick={handleSubmit(onEnviar, onSubmitError)}
+                    >
                       Enviar
                     </Button>
                   </div>
