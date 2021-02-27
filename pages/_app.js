@@ -25,11 +25,9 @@ export default function MyApp({ Component, pageProps }) {
   return (
     <SafeHydrate>
       <ToastProvider autoDismiss autoDismissTimeout={6000} placement="bottom-right">
-        {/* <ApolloProvider client={client}> */}
         <UsuarioProvider>
           <Component {...{ ...pageProps }} />
         </UsuarioProvider>
-        {/* </ApolloProvider> */}
       </ToastProvider>
     </SafeHydrate>
   );

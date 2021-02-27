@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client';
 import Axios from './Axios';
 
 export class Usuario {
@@ -6,63 +5,6 @@ export class Usuario {
 
   static DOCENTE = 'DOCENTE';
   static ALUMNO = 'ALUMNO';
-
-  static login = gql`
-    mutation login($username: String!, $password: String!) {
-      tokenAuth(username: $username, password: $password) {
-        token
-        success
-        errors
-        refreshToken
-        user {
-          id
-          username
-          grupos {
-            id
-            nombre
-          }
-          persona {
-            id
-            identificacion
-            tipoIdentificacion
-            str
-            correo
-            telefono
-            celularUno
-            fechaNacimiento
-            alumno {
-              id
-              padre {
-                identificacion
-                primerNombre
-                segundoNombre
-                primerApellido
-                segundoApellido
-                telefono
-              }
-              madre {
-                identificacion
-                primerNombre
-                segundoNombre
-                primerApellido
-                segundoApellido
-                telefono
-              }
-              representante {
-                identificacion
-                primerNombre
-                segundoNombre
-                primerApellido
-                segundoApellido
-                telefono
-              }
-              observaciones
-            }
-          }
-        }
-      }
-    }
-  `;
 
   static guardarUsuarioStorage = (usuario) => {
     try {
