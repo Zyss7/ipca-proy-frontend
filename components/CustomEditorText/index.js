@@ -91,7 +91,7 @@ const CustomEditorText = ({ label, name, rules }) => {
                   'template',
                 ],
               ],
-              lang: lang.es,
+              lang: es,
               'lang(In nodejs)': 'es',
             }}
           />
