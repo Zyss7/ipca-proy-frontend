@@ -16,13 +16,18 @@ const useUsuario = () => {
   };
 
   const getDataPushNotifications = async () => {
+    // try {
     const sw = await registerSw();
+    console.log('SW: ', sw);
     return {
       endpoint: sw?.subscription?.endpoint,
       browser: sw.browser,
       auth: sw.subscription.keys.auth,
       p256dh: sw.subscription.keys.p256dh,
     };
+    // } catch (error) {
+    //   return {};
+    // }
   };
 
   /**

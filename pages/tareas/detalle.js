@@ -7,9 +7,11 @@ import useTareas from 'hooks/useTareas';
 import useUsuario from 'hooks/useUsuario';
 import _ from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
+import { useSpeak } from 'hooks/useSpeak';
+import { Button } from 'primereact/button';
 
 const DetalleTareaContainer = ({ id }) => {
   const [tarea, setTarea] = useState({});
@@ -21,6 +23,12 @@ const DetalleTareaContainer = ({ id }) => {
   const { register, errors, handleSubmit, reset } = useForm({
     mode: 'onChange',
   });
+
+  const audioRef = useRef(null);
+
+  const { fetchAudio } = useSpeak();
+
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const { getTareaById, changeEstado } = useTareas();
 
@@ -70,6 +78,19 @@ const DetalleTareaContainer = ({ id }) => {
     await changeEstado(id, tarea, target.value);
   };
 
+  const onClickEscuchar = async () => {
+    if (!isSpeaking) {
+      const descripcionHablada = tarea?.descripcionHablada;
+      if (!descripcionHablada) {
+        return addToast('NO HA INGRESADO NINGUNA DESCRIPCION!', {
+          appearance: 'warning',
+        });
+      }
+      const res = await fetchAudio(descripcionHablada);
+      audioRef.current.src = window.URL.createObjectURL(res);
+      audioRef.current?.play();
+    }
+  };
   return (
     <PrivateLayout>
       <LoadingWrapper loading={loading}>
@@ -108,6 +129,30 @@ const DetalleTareaContainer = ({ id }) => {
                     </React.Fragment>
                   )}
                 </div>
+                <div className="col-12 ">
+                  <div className="d-inline-flex w-100">
+                    <h4>Escuchar descripción:</h4>
+                    <Button
+                      icon="pi pi-volume-up"
+                      className="p-button-sm ml-2"
+                      onClick={onClickEscuchar}
+                    />
+                  </div>
+                </div>
+                <audio
+                  className="d-none"
+                  ref={(ref) => {
+                    try {
+                      audioRef.current = ref;
+                      ref.onplay = () => {
+                        setIsSpeaking(true);
+                      };
+                      ref.onpause = () => {
+                        setIsSpeaking(false);
+                      };
+                    } catch (error) {}
+                  }}
+                />
                 <div className="col-12">
                   <button
                     className="btn btn-sm btn-primary"

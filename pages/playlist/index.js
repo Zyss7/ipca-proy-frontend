@@ -4,6 +4,7 @@ import PlaylistAlumno from '@components/playlist/PlaylistAlumno';
 import PrivateLayout from '@layouts/privateLayout';
 import usePlayList from 'hooks/usePlayList';
 import useUsuario from 'hooks/useUsuario';
+import { Button } from 'primereact/button';
 import React, { useEffect, useState } from 'react';
 
 const PlaylistContainer = () => {
@@ -27,7 +28,13 @@ const PlaylistContainer = () => {
     <PrivateLayout>
       <LoadingWrapper loading={cargando}>
         {usuario?.isDocente && (
-          <button onClick={() => setShowList(!showList)}>Ver demo</button>
+          <div className="d-inline-flex mx-md-3">
+            <Button
+              onClick={() => setShowList(!showList)}
+              icon="pi pi-eye"
+              label="Ver demo"
+            />
+          </div>
         )}
         {!showList && usuario?.isDocente && <PlaylistAdmin data={data} />}
         {(showList || usuario?.isAlumno) && <PlaylistAlumno data={data} />}

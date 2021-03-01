@@ -32,19 +32,19 @@ const Login = () => {
     console.log(input);
     input.username = input.username.trim();
     input.password = input.password.trim();
-    try {
-      setLoading(true);
-      const res = await login(input);
+    // try {
+    setLoading(true);
+    const res = await login(input);
 
-      if (res?.transaccion === true) {
-        return router.push('/dashboard');
-      }
-
-      addToast(res?.error?.mensaje, { appearance: 'warning' });
-    } catch (error) {
-      console.log(error);
-      addToast('Ha ocurrido un problema al realizar el login', { appearance: 'warning' });
+    if (res?.transaccion === true) {
+      return router.push('/dashboard');
     }
+
+    addToast(res?.error?.mensaje, { appearance: 'warning' });
+    // } catch (error) {
+    //   console.log(error);
+    //   addToast('Ha ocurrido un problema al realizar el login', { appearance: 'warning' });
+    // }
 
     setLoading(false);
   };
