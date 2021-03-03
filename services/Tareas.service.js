@@ -6,27 +6,6 @@ export class Tarea {
   static PENDIENTE = 'PENDIENTE';
   static ENVIADO = 'ENVIADO';
 
-  static getAll = async (queryParams = {}) => {
-    const usuario = Usuario.getMappedUsuario();
-    console.log(localStorage.getItem('usuarioMLN'));
-    const { status, data } = await Axios.post(
-      'get-tareas',
-      {
-        identificacion: usuario?.persona.identificacion,
-        ...queryParams,
-      },
-      // {
-      //   headers: {
-      //     authorization: '',
-      //   },
-      // },
-    );
-
-    if (status === 200) {
-      return data?.data;
-    }
-  };
-
   static getById = async (id) => {
     const { status, data } = await Axios.get(`tareas/${id}`);
 

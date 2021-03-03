@@ -32,7 +32,13 @@ const usePlayList = () => {
     const res = await privateAxios.post(urlEditarListaById(id), body);
     return res?.data;
   };
-  return { getListasTable, crear, getById, editarById };
+
+  const eliminarPlayList = async (id) => {
+    const res = await privateAxios.post(`eliminar-lista-reproduccion-by-id/${id}`);
+    return res?.data;
+  };
+
+  return { getListasTable, crear, getById, editarById, eliminarPlayList };
 };
 
 export default usePlayList;

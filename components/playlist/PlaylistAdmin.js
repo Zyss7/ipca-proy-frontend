@@ -1,7 +1,7 @@
-import Link from "next/link";
-import React from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
-import PlaylistTable from "./playlistTable";
+import Link from 'next/link';
+import React from 'react';
+import { AiOutlinePlusCircle } from 'react-icons/ai';
+import PlaylistTable from './playlistTable';
 
 /**
  *
@@ -12,21 +12,21 @@ import PlaylistTable from "./playlistTable";
  *  <PlaylistAdmin data={listas}/>
  * )
  */
-const PlaylistAdmin = ({ data }) => {
+const PlaylistAdmin = ({ data, onClickEliminar }) => {
   return (
-    <main className='container-fluid'>
-      <h1 className='text-center display-4 my-5'>
+    <main className="container-fluid">
+      <h1 className="text-center display-4 my-5">
         Playlists
-        <Link href='/playlist/form'>
+        <Link href="/playlist/form">
           <a>
-            <AiOutlinePlusCircle color='green' className='pointer' />
+            <AiOutlinePlusCircle color="green" className="pointer" />
           </a>
         </Link>
       </h1>
 
-    <div className='row justify-content-center'>
-        <div className='col-lg-11 align-self-center '>
-          <PlaylistTable data={data} />
+      <div className="row justify-content-center">
+        <div className="col-lg-11 align-self-center ">
+          <PlaylistTable data={data} onClickEliminar={onClickEliminar} />
         </div>
       </div>
     </main>
