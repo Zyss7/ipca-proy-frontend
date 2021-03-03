@@ -1,3 +1,4 @@
+import moment from 'moment';
 import useAxios from './useAxios';
 import useUsuario from './useUsuario';
 
@@ -84,7 +85,29 @@ const useTareas = () => {
     return tarea;
   };
 
-  return { deleteTarea, changeEstado, getTareas, getTareaById, setEvidencia };
+  const update = async (id, tarea) => {
+    tarea.docente = usuario.persona;
+    return await privateAxios.put(`tareas/${id}`, tarea);
+  };
+
+  const save = async (tarea) => {
+    tarea.createdAt = moment().toISOString();
+    tarea.docente = usuario.persona;
+
+    const { data } = await privateAxios.post('create-tarea', tarea);
+
+    return data.data;
+  };
+
+  return {
+    deleteTarea,
+    changeEstado,
+    getTareas,
+    getTareaById,
+    setEvidencia,
+    update,
+    save,
+  };
 };
 
 export default useTareas;

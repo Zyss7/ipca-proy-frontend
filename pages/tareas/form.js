@@ -1,7 +1,7 @@
 import CustomDateTimePicker from '@components/Inputs/CustomDateTimePicker';
 import PrivateLayout from '@layouts/privateLayout';
-import { Tarea } from '@services/Tareas.service';
 import { useSpeak } from 'hooks/useSpeak';
+import useTareas from 'hooks/useTareas';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,13 +20,13 @@ const FormTareaContainer = ({ id }) => {
   const audioRef = useRef(null);
 
   const [isSpeaking, setIsSpeaking] = useState(false);
-
+  const { getTareaById, update, save } = useTareas();
   const router = useRouter();
 
   useEffect(() => {
     if (id) {
       console.log('EDITAR');
-      Tarea.getById(id).then((res) => {
+      getTareaById(id).then((res) => {
         methods.reset(res);
       });
     }
@@ -34,24 +34,36 @@ const FormTareaContainer = ({ id }) => {
 
   const onGuardar = async (data) => {
     data.estadoEnvio = 'PENDIENTE';
-
-    if (id) {
-      await Tarea.update(id, data);
-    } else {
-      const res = await Tarea.save(data);
-      router.replace(`/tareas/form?id=${res.id}`);
+    try {
+      if (id) {
+        await update(id, data);
+      } else {
+        const res = await save(data);
+        router.replace(`/tareas/form?id=${res.id}`);
+      }
+      addToast('Se ha guarado correctamente', { appearance: 'info' });
+    } catch (error) {
+      addToast('Ha ocurrido un problema al momento de guardar la tare', {
+        appearance: 'error',
+      });
     }
+  };
+
+  const mensajeGuardar = () => {
+    addToast('Se han guardado todos los cambios', { appearance: 'info' });
   };
 
   const onEnviar = async (data) => {
     data.estadoEnvio = 'PENDIENTE';
     console.log('DATA: ', data);
     if (id) {
-      await Tarea.update(id, data);
+      await update(id, data);
+      mensajeGuardar();
       return router.push(`/tareas/enviar?id=${id}`);
     }
-    const res = await Tarea.save(data);
+    const res = await save(data);
     router.replace(`/tareas/form?id=${res.id}`);
+    mensajeGuardar();
     return router.replace(`/tareas/enviar?id=${res.id}`);
   };
 

@@ -1,5 +1,5 @@
+import LoadingWrapper from '@components/Loadings/LoadingWrapper';
 import PrivateLayout from '@layouts/privateLayout';
-import { Tarea } from '@services/Tareas.service';
 import useCustomRouter from 'hooks/useCustomRouter';
 import useTareas from 'hooks/useTareas';
 import useUsuario from 'hooks/useUsuario';
@@ -11,6 +11,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useToasts } from 'react-toast-notifications';
 
 const EnviarTareaContainer = ({ id }) => {
+  const [cargando, setCargando] = useState(false);
+
   const [tarea, setTarea] = useState({});
 
   const [alumnos, setAlumnos] = useState([]);
@@ -19,7 +21,7 @@ const EnviarTareaContainer = ({ id }) => {
   const [isLoading, setLoading] = useState(false);
   const { addToast } = useToasts();
 
-  const { getTareaById } = useTareas();
+  const { getTareaById, update, save } = useTareas();
 
   const router = useCustomRouter();
 
@@ -83,84 +85,91 @@ const EnviarTareaContainer = ({ id }) => {
 
     tarea.estadoEnvio = 'ENVIADO';
 
-    await Tarea.update(id, tarea);
+    setCargando(true);
+    await update(id, tarea);
+    addToast(`Se ha enviando la tarea correctamente.`, {
+      appearance: 'success',
+    });
+    setCargando(false);
     router.push('/tareas');
   };
 
   return (
     <PrivateLayout>
-      <main className="container-fluid">
-        <h1 className="text-center my-5">Tarea: {tarea?.titulo}</h1>
-        <div className="row justify-content-center">
-          <div className="col-md-10 col-lg-9 col-xl-8">
-            <h1>Seleccione a los alumnos</h1>
+      <LoadingWrapper loading={cargando}>
+        <main className="container-fluid">
+          <h1 className="text-center my-5">Tarea: {tarea?.titulo}</h1>
+          <div className="row justify-content-center">
+            <div className="col-md-10 col-lg-9 col-xl-8">
+              <h1>Seleccione a los alumnos</h1>
 
-            <DataTable
-              className="p-datatable-gridlines p-datatable-sm shadow-lg"
-              value={alumnos}
-              rowHover
-              paginator
-              rows={10}
-              rowsPerPageOptions={[10, 25, 50]}
-              autoLayout
-              emptyMessage="No se han encontrado resultados"
-              loading={isLoading}
-            >
-              <Column
-                header="#"
-                className="text-center"
-                style={{ width: '50px' }}
-                body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
-                headerClassName="text-center"
-              />
-              <Column
-                header="Estudiante"
-                field="str"
-                filter
-                sortable
-                headerClassName="text-center"
-              />
-              <Column
-                header="Aula"
-                field="aula"
-                filter
-                sortable
-                headerClassName="text-center"
-              />
+              <DataTable
+                className="p-datatable-gridlines p-datatable-sm shadow-lg"
+                value={alumnos}
+                rowHover
+                paginator
+                rows={10}
+                rowsPerPageOptions={[10, 25, 50]}
+                autoLayout
+                emptyMessage="No se han encontrado resultados"
+                loading={isLoading}
+              >
+                <Column
+                  header="#"
+                  className="text-center"
+                  style={{ width: '50px' }}
+                  body={(rowData, row) => <strong>{row.rowIndex + 1}</strong>}
+                  headerClassName="text-center"
+                />
+                <Column
+                  header="Estudiante"
+                  field="str"
+                  filter
+                  sortable
+                  headerClassName="text-center"
+                />
+                <Column
+                  header="Aula"
+                  field="aula"
+                  filter
+                  sortable
+                  headerClassName="text-center"
+                />
 
-              <Column
-                style={{ width: '100px', padding: '0 0 0 0' }}
-                header="Enviar"
-                headerClassName="text-center"
-                body={(rowData) => {
-                  return (
-                    <div className="text-center w-100 py-1">
-                      <Checkbox onChange={onCheck(rowData)} checked={rowData.enviar} />
-                    </div>
-                  );
-                }}
-              />
-            </DataTable>
+                <Column
+                  style={{ width: '100px', padding: '0 0 0 0' }}
+                  header="Enviar"
+                  headerClassName="text-center"
+                  body={(rowData) => {
+                    return (
+                      <div className="text-center w-100 py-1">
+                        <Checkbox onChange={onCheck(rowData)} checked={rowData.enviar} />
+                      </div>
+                    );
+                  }}
+                />
+              </DataTable>
+            </div>
           </div>
-        </div>
 
-        <div className="row justify-content-center mt-5">
-          <div className="col-md-4 my-2">
-            <Button
-              className="btn-block p-button-outlined p-button-danger"
-              label="Regresar"
-              onClick={onClickAtras}
-            />
+          <div className="row justify-content-center mt-5">
+            <div className="col-md-4 my-2">
+              <Button
+                className="btn-block p-button-outlined p-button-danger"
+                label="Regresar"
+                onClick={onClickAtras}
+              />
+            </div>
+            <div className="col-md-4 my-2">
+              <Button
+                className="btn-block p-button-outlined p-button-success"
+                label="Enviar"
+                onClick={onClickEnviar}
+              />
+            </div>
           </div>
-          <div className="col-md-4 my-2">
-            <Button
-              className="btn-block p-button-outlined p-button-success"
-              label="Enviar"
-              onClick={onClickEnviar}
-            />
-          </div>
-        </div>
-      </main>
+        </main>
+      </LoadingWrapper>
     </PrivateLayout>
   );
 };

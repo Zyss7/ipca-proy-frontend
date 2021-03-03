@@ -10,6 +10,7 @@ const useAxios = (baseURL = URL_API_MN) => {
   const { addToast } = useToasts();
 
   const privateAxios = useMemo(() => {
+    console.log(usuario.persona);
     const instance = Axios.create({
       baseURL,
       headers: { Authorization: usuario?.persona?.identificacion || null },
