@@ -32,7 +32,7 @@ const TareasPendientesTable = () => {
   return (
     <React.Fragment>
       {usuario?.isDocente && <h3>Tareas pendientes de terminar de editar</h3>}
-      {usuario?.isAlumno && <h3>Tareas pendientes de realizar</h3>}
+      {usuario?.isAlumno && <h3>Tareas</h3>}
 
       <div className="datatable-doc-demo">
         <DataTable
