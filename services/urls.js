@@ -1,5 +1,5 @@
-export const URL_BASE = 'http://localhost:8000/';
-// export const URL_BASE = 'https://ipca-backend.herokuapp.com/';
+// export const URL_BASE = "http://localhost:8000/";
+export const URL_BASE = 'https://ipca-backend.herokuapp.com/';
 export const URL_API_MN = `${URL_BASE}api/v1/`;
 
 export const urlGetListasReproduccion = 'get-listas-reproduccion';
