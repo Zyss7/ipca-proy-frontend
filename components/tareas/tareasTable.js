@@ -45,6 +45,7 @@ const TareasTable = ({ data, cargarTareas }) => {
                     <th>Alumno</th>
                     <th style={{ width: '200px' }}>Estado</th>
                     <th style={{ width: '100px' }}>Visto</th>
+                    <th style={{ width: '150px' }}>Evidencias</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -54,6 +55,22 @@ const TareasTable = ({ data, cargarTareas }) => {
                       <td>{alumno.str}</td>
                       <td> {alumno.estado}</td>
                       <td>{alumno.show ? 'SI' : 'NO'}</td>
+                      <td>
+                        {alumno.evidencia && (
+                          <Button
+                            variant="info"
+                            block
+                            className="btn-sm"
+                            onClick={router.goTo(
+                              `/evidencias?tarea=${data?.id}&alumno=${alumno.id}`,
+                            )}
+                          >
+                            Ver evidencia
+                          </Button>
+                        )}
+
+                        {!alumno.evidencia && <h6>No registra</h6>}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -99,6 +116,8 @@ const TareasTable = ({ data, cargarTareas }) => {
           //onRowExpand={this.onRowExpand}
           //onRowCollapse={this.onRowCollapse}
           rowExpansionTemplate={rowExpandTemplate}
+          stateKey="DT-TAREAS"
+          stateStorage="local"
         >
           {usuario.isDocente && <Column expander style={{ width: '4em' }} />}
           <Column

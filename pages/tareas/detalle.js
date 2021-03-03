@@ -1,17 +1,20 @@
+import { CustomTextEditor } from '@components/exports';
 import LoadingWrapper from '@components/Loadings/LoadingWrapper';
 import styled from '@emotion/styled';
 import PrivateLayout from '@layouts/privateLayout';
 import { Comentario } from '@services/Comentarios.service';
 import classnames from 'classnames';
+import { useSpeak } from 'hooks/useSpeak';
 import useTareas from 'hooks/useTareas';
 import useUsuario from 'hooks/useUsuario';
 import _ from 'lodash';
 import moment from 'moment';
+import { Button, Button as PrimeButton } from 'primereact/button';
+import { ToggleButton } from 'primereact/togglebutton';
 import React, { useEffect, useRef, useState } from 'react';
 import { Form } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
-import { useSpeak } from 'hooks/useSpeak';
-import { Button } from 'primereact/button';
+import { FormProvider, useForm } from 'react-hook-form';
+import { useToasts } from 'react-toast-notifications';
 
 const DetalleTareaContainer = ({ id }) => {
   const [tarea, setTarea] = useState({});
@@ -24,18 +27,24 @@ const DetalleTareaContainer = ({ id }) => {
     mode: 'onChange',
   });
 
+  const [showEvidencias, setShowEvidencias] = useState(false);
+
+  const methods = useForm({ mode: 'onChange' });
   const audioRef = useRef(null);
 
   const { fetchAudio } = useSpeak();
 
+  const { addToast } = useToasts();
+
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const { getTareaById, changeEstado } = useTareas();
+  const { getTareaById, changeEstado, setEvidencia } = useTareas();
 
   useEffect(() => {
     setLoading(true);
     getTareaById(id).then((res) => {
       setTarea(res);
+      methods.reset({ evidencia: res.evidencia });
       setLoading(false);
     });
 
@@ -76,6 +85,18 @@ const DetalleTareaContainer = ({ id }) => {
 
   const onChangeEstado = async ({ target }) => {
     await changeEstado(id, tarea, target.value);
+  };
+
+  const onSetEvidencia = async ({ target }) => {
+    try {
+      await setEvidencia(id, tarea, methods.getValues('evidencia'));
+      addToast('Se ha guardado la evidencia de forma correcta.', { appearance: 'info' });
+    } catch (error) {
+      addToast('Ha ocurrido un problema al guardar la evidencia', {
+        appearance: 'error',
+      });
+    }
+    setShowEvidencias(false);
   };
 
   const onClickEscuchar = async () => {
@@ -126,6 +147,37 @@ const DetalleTareaContainer = ({ id }) => {
                           <option value="FINALIZADO">FINALIZADO</option>
                         </select>
                       </div>
+
+                      <FormProvider {...methods}>
+                        <h4>
+                          Evidencias:{' '}
+                          <ToggleButton
+                            checked={showEvidencias}
+                            className="p-button-info"
+                            onLabel={null}
+                            offLabel={null}
+                            onIcon="pi pi-eye"
+                            offIcon="pi pi-eye-slash"
+                            onChange={(e) => setShowEvidencias(e.value)}
+                          />
+                          {showEvidencias && (
+                            <PrimeButton
+                              className="ml-2"
+                              icon="pi pi-save"
+                              onClick={onSetEvidencia}
+                              type="button"
+                            />
+                          )}
+                        </h4>
+                        {showEvidencias && (
+                          <CustomTextEditor
+                            name="evidencia"
+                            rules={{
+                              required: 'Este campo es Obligatorio',
+                            }}
+                          />
+                        )}
+                      </FormProvider>
                     </React.Fragment>
                   )}
                 </div>

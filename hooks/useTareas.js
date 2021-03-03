@@ -56,6 +56,23 @@ const useTareas = () => {
 
   /**
    *
+   * @param {number|string} id
+   * @param {*} tarea
+   * @param {string} evidencia
+   */
+  const setEvidencia = async (id, tarea, evidencia) => {
+    const { alumnos } = tarea;
+
+    tarea.alumnos = alumnos.map((alumno) => ({
+      ...alumno,
+      evidencia: alumno.id === usuario.id ? evidencia : alumno.evidencia,
+    }));
+    const res = await privateAxios.put(`tareas/${id}`, tarea);
+    return res?.data;
+  };
+
+  /**
+   *
    * @param {*} tarea
    * @param {number} index
    */
@@ -63,10 +80,11 @@ const useTareas = () => {
     const alumno = tarea?.alumnos?.find?.((alumno) => alumno.id === usuario?.id) || [];
     tarea.estado = alumno.estado;
     tarea.show = alumno.show;
+    tarea.evidencia = alumno.evidencia;
     return tarea;
   };
 
-  return { deleteTarea, changeEstado, getTareas, getTareaById };
+  return { deleteTarea, changeEstado, getTareas, getTareaById, setEvidencia };
 };
 
 export default useTareas;
