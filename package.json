@@ -24,7 +24,7 @@
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "next": "10.0.4",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "normalize-text": "^2.3.1",
     "normalize.css": "^8.0.1",
     "popper.js": "^1.16.1",
